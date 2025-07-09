@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Plus, Edit, Trash2, Eye, LogOut, Settings, Loader2 } from "lucide-react";
+import { Building2, Plus, Trash2, Eye, LogOut, Settings, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROOM_TYPE_LABELS } from "@/types/hostel";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ import { useOwnerHostel, useCreateRoom, useDeleteRoom } from "@/hooks/useOwnerDa
 import { Database } from "@/integrations/supabase/types";
 import ImageUpload from "@/components/ImageUpload";
 import HostelOnboarding from "@/components/HostelOnboarding";
+import { EditRoomDialog } from "@/components/EditRoomDialog";
 
 type RoomType = Database['public']['Enums']['room_type'];
 
@@ -75,6 +76,7 @@ const OwnerDashboard = () => {
       hostel_id: hostel.id,
       type: newRoomData.type,
       price: parseInt(newRoomData.price),
+      price_period: newRoomData.pricePeriod,
       description: newRoomData.description,
       total_rooms: parseInt(newRoomData.totalRooms),
       available_rooms: parseInt(newRoomData.availableRooms),
@@ -218,18 +220,11 @@ const OwnerDashboard = () => {
                   <CardContent>
                     <div className="space-y-3">
                       <p className="text-2xl font-bold text-green-600">
-                        UGX {room.price.toLocaleString()}/semester
+                        UGX {room.price.toLocaleString()}/{room.price_period}
                       </p>
                       <p className="text-gray-600 text-sm line-clamp-2">{room.description}</p>
                       <div className="flex space-x-2 pt-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
+                        <EditRoomDialog room={room} />
                         <Button 
                           variant="outline" 
                           size="sm"

@@ -97,6 +97,7 @@ export type Database = {
           id: string
           images: string[] | null
           price: number
+          price_period: string
           total_rooms: number
           type: Database["public"]["Enums"]["room_type"]
           updated_at: string | null
@@ -109,6 +110,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           price: number
+          price_period?: string
           total_rooms: number
           type: Database["public"]["Enums"]["room_type"]
           updated_at?: string | null
@@ -121,6 +123,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           price?: number
+          price_period?: string
           total_rooms?: number
           type?: Database["public"]["Enums"]["room_type"]
           updated_at?: string | null

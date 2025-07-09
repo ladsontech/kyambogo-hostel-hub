@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -173,6 +172,7 @@ export const useCreateRoom = () => {
       hostel_id: string;
       type: RoomType;
       price: number;
+      price_period: 'month' | 'semester';
       description?: string;
       images?: string[];
       total_rooms: number;
@@ -204,6 +204,7 @@ export const useUpdateRoom = () => {
       roomData: {
         type?: RoomType;
         price?: number;
+        price_period?: 'month' | 'semester';
         description?: string;
         images?: string[];
         total_rooms?: number;

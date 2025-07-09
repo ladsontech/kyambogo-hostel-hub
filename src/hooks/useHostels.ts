@@ -28,7 +28,7 @@ export const useHostels = () => {
           id: room.id,
           type: room.type as any,
           price: room.price,
-          pricePeriod: 'semester', // Default to semester as specified
+          pricePeriod: room.price_period as 'month' | 'semester',
           description: room.description || '',
           images: room.images || [],
           totalRooms: room.total_rooms,
@@ -71,7 +71,7 @@ export const useHostel = (id: string) => {
           id: room.id,
           type: room.type as any,
           price: room.price,
-          pricePeriod: 'semester', // Default to semester as specified
+          pricePeriod: room.price_period as 'month' | 'semester',
           description: room.description || '',
           images: room.images || [],
           totalRooms: room.total_rooms,
