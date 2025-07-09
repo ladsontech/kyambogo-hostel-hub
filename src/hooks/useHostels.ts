@@ -39,7 +39,7 @@ export const useHostels = () => {
         ownerContact: hostel.owner?.phone || '',
         approved: hostel.approved,
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
-        amenities: hostel.amenities || []
+        amenities: (hostel as any).amenities || []
       }));
     }
   });
@@ -83,7 +83,7 @@ export const useHostel = (id: string) => {
         ownerContact: data.owner?.phone || '',
         approved: data.approved,
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
-        amenities: data.amenities || []
+        amenities: (data as any).amenities || []
       };
 
       return hostel;

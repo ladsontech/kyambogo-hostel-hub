@@ -8,13 +8,13 @@ import { ROOM_TYPE_LABELS, AVAILABLE_AMENITIES } from "@/types/hostel";
 import { generateWhatsAppLink } from "@/utils/mockData";
 import { useHostel } from "@/hooks/useHostels";
 import { Loader2 } from "lucide-react";
-import ImageCarousel from "@/components/ImageCarousel";
+import SimpleImageCarousel from "@/components/SimpleImageCarousel";
 
 const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: hostel, isLoading, error } = useHostel(id || '');
 
-  const callPhoneNumber = "256789572007"; // Updated call number
+  const callPhoneNumber = "256789572007";
 
   if (isLoading) {
     return (
@@ -161,7 +161,7 @@ const HostelDetails = () => {
                       {/* Room Images */}
                       {room.images && room.images.length > 0 && (
                         <div className="mb-4">
-                          <ImageCarousel images={room.images} />
+                          <SimpleImageCarousel images={room.images} />
                         </div>
                       )}
                       

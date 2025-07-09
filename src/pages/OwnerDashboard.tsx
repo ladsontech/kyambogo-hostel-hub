@@ -141,7 +141,7 @@ const OwnerDashboard = () => {
           location: hostel.location,
           description: hostel.description || "",
           images: hostel.images || [],
-          amenities: hostel.amenities || []
+          amenities: (hostel as any).amenities || []
         }}
       />
     );
