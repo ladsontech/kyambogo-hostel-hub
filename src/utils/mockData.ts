@@ -1,5 +1,4 @@
 
-
 import { Hostel } from "@/types/hostel";
 
 export const mockHostels: Hostel[] = [
@@ -16,7 +15,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "1-1",
         type: "single-self-contained",
-        price: 350000,
+        price: 1400000,
+        pricePeriod: "semester",
         description: "Spacious single room with private bathroom, study desk, and wardrobe.",
         images: ["https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop"],
         totalRooms: 10,
@@ -25,7 +25,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "1-2",
         type: "double-self-contained",
-        price: 450000,
+        price: 1800000,
+        pricePeriod: "semester",
         description: "Comfortable double room with two beds, private bathroom, and shared study area.",
         images: ["https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop"],
         totalRooms: 6,
@@ -50,7 +51,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "2-1",
         type: "single-shared",
-        price: 180000,
+        price: 720000,
+        pricePeriod: "semester",
         description: "Single room with shared bathroom facilities on each floor.",
         images: ["https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop"],
         totalRooms: 15,
@@ -59,7 +61,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "2-2",
         type: "double-shared",
-        price: 280000,
+        price: 1120000,
+        pricePeriod: "semester",
         description: "Double room with shared bathroom, perfect for friends.",
         images: ["https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop"],
         totalRooms: 8,
@@ -85,7 +88,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "3-1",
         type: "single-self-contained",
-        price: 400000,
+        price: 1600000,
+        pricePeriod: "semester",
         description: "Luxury single room with AC, private bathroom, and balcony view.",
         images: ["https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop"],
         totalRooms: 12,
@@ -94,7 +98,8 @@ export const mockHostels: Hostel[] = [
       {
         id: "3-2",
         type: "double-self-contained",
-        price: 550000,
+        price: 2200000,
+        pricePeriod: "semester",
         description: "Premium double room with AC, private bathroom, and study corner.",
         images: ["https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop"],
         totalRooms: 8,
@@ -117,4 +122,3 @@ export const generateWhatsAppLink = (hostelName: string, roomType?: string) => {
   
   return `https://wa.me/${adminNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
 };
-

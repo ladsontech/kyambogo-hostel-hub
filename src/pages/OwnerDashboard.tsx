@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Plus, Edit, Trash2, Eye, LogOut, Settings, Loader2 } from "lucide-react";
@@ -25,6 +25,7 @@ const OwnerDashboard = () => {
   const [newRoomData, setNewRoomData] = useState({
     type: "" as RoomType,
     price: "",
+    pricePeriod: "semester" as "month" | "semester",
     description: "",
     totalRooms: "",
     availableRooms: "",
@@ -87,6 +88,7 @@ const OwnerDashboard = () => {
         setNewRoomData({
           type: "" as RoomType,
           price: "",
+          pricePeriod: "semester",
           description: "",
           totalRooms: "",
           availableRooms: "",
@@ -216,7 +218,7 @@ const OwnerDashboard = () => {
                   <CardContent>
                     <div className="space-y-3">
                       <p className="text-2xl font-bold text-green-600">
-                        UGX {room.price.toLocaleString()}/month
+                        UGX {room.price.toLocaleString()}/semester
                       </p>
                       <p className="text-gray-600 text-sm line-clamp-2">{room.description}</p>
                       <div className="flex space-x-2 pt-2">
@@ -290,7 +292,7 @@ const OwnerDashboard = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Price (UGX per month)</Label>
+                      <Label>Price (UGX)</Label>
                       <Input 
                         type="number" 
                         placeholder="350000" 
@@ -299,6 +301,24 @@ const OwnerDashboard = () => {
                         required 
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Pricing Period</Label>
+                    <RadioGroup 
+                      value={newRoomData.pricePeriod} 
+                      onValueChange={(value: "month" | "semester") => setNewRoomData({...newRoomData, pricePeriod: value})}
+                      className="flex space-x-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="semester" id="semester" />
+                        <Label htmlFor="semester">Per Semester</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="month" id="month" />
+                        <Label htmlFor="month">Per Month</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -362,6 +382,7 @@ const OwnerDashboard = () => {
                         setNewRoomData({
                           type: "" as RoomType,
                           price: "",
+                          pricePeriod: "semester",
                           description: "",
                           totalRooms: "",
                           availableRooms: "",

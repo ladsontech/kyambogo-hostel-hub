@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, BedDouble, DollarSign } from "lucide-react";
+import { MapPin, BedDouble } from "lucide-react";
 import { Hostel, ROOM_TYPE_LABELS } from "@/types/hostel";
 import { generateWhatsAppLink } from "@/utils/mockData";
 import { Link } from "react-router-dom";
@@ -14,6 +14,10 @@ interface HostelCardProps {
 export const HostelCard = ({ hostel }: HostelCardProps) => {
   const minPrice = Math.min(...hostel.roomTypes.map(rt => rt.price));
   const maxPrice = Math.max(...hostel.roomTypes.map(rt => rt.price));
+  
+  // Check if all rooms have the same pricing period
+  const allSamePeriod = hostel.roomTypes.every(rt => rt.pricePeriod === hostel.roomTypes[0].pricePeriod);
+  const periodLabel = allSamePeriod ? hostel.roomTypes[0].pricePeriod : 'mixed';
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden">
@@ -53,11 +57,10 @@ export const HostelCard = ({ hostel }: HostelCardProps) => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center text-green-600 font-semibold">
-            <DollarSign className="h-4 w-4" />
             <span>
               {minPrice === maxPrice 
-                ? `${minPrice.toLocaleString()} UGX/month`
-                : `${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()} UGX/month`
+                ? `UGX ${minPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`
+                : `UGX ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`
               }
             </span>
           </div>

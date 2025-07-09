@@ -1,7 +1,9 @@
+
 export interface RoomType {
   id: string;
   type: 'single-self-contained' | 'double-self-contained' | 'single-shared' | 'double-shared';
   price: number;
+  pricePeriod: 'month' | 'semester';
   description: string;
   images: string[];
   totalRooms: number;
