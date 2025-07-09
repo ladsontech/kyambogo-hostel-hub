@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2, Image as ImageIcon, Menu, X } from "lucide-react";
+import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useApproveHostel, useRejectHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
@@ -19,6 +19,17 @@ const AdminDashboard = () => {
 
   const pendingHostels = hostels?.filter(h => !h.approved) || [];
   const approvedHostels = hostels?.filter(h => h.approved) || [];
+  
+  // Get all rooms from approved hostels for room management
+  const allRooms = approvedHostels.flatMap(hostel => 
+    (hostel.rooms || []).map(room => ({
+      ...room,
+      hostelName: hostel.name,
+      hostelLocation: hostel.location,
+      ownerName: hostel.owner?.name,
+      ownerPhone: hostel.owner?.phone
+    }))
+  );
 
   const handleApprove = (hostelId: string) => {
     approveHostel.mutate(hostelId);
@@ -32,6 +43,13 @@ const AdminDashboard = () => {
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredRooms = allRooms.filter(room =>
+    room.hostelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    room.hostelLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    room.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    room.ownerName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -152,23 +170,23 @@ const AdminDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Room Types</CardTitle>
-              <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Rooms</CardTitle>
+              <Bed className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {hostels?.reduce((sum, h) => sum + (h.rooms?.length || 0), 0) || 0}
+                {allRooms.length}
               </div>
               <p className="text-xs text-muted-foreground">
-                Available options
+                From approved hostels
               </p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="approved" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-full sm:max-w-md text-xs sm:text-sm">
-            <TabsTrigger value="approved" className="px-1 sm:px-4">Approved</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 max-w-full sm:max-w-lg text-xs sm:text-sm">
+            <TabsTrigger value="approved" className="px-1 sm:px-4">Hostels</TabsTrigger>
             <TabsTrigger value="pending" className="relative px-1 sm:px-4">
               Pending
               {pendingHostels.length > 0 && (
@@ -176,6 +194,10 @@ const AdminDashboard = () => {
                   {pendingHostels.length}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="rooms" className="px-1 sm:px-4">
+              <Bed className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Rooms</span>
             </TabsTrigger>
             <TabsTrigger value="carousel" className="px-1 sm:px-4">
               <ImageIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -345,6 +367,99 @@ const AdminDashboard = () => {
                 <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-green-400 mb-4" />
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">All caught up!</h3>
                 <p className="text-gray-500">No hostels pending review at the moment</p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="rooms" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-800">All Rooms</h2>
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search rooms..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {filteredRooms.map((room) => (
+                <Card key={room.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                          <h3 className="text-base sm:text-xl font-semibold text-gray-800 capitalize">
+                            {room.type.replace('-', ' ')} Room
+                          </h3>
+                          <Badge className="bg-blue-100 text-blue-800 w-fit">
+                            {room.price.toLocaleString()} UGX / {room.price_period}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                          <div className="space-y-2">
+                            <h4 className="font-medium text-gray-800 text-sm sm:text-base">Hostel Details</h4>
+                            <div className="text-sm text-gray-600">
+                              <p className="font-medium">{room.hostelName}</p>
+                              <p>{room.hostelLocation}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <h4 className="font-medium text-gray-800 text-sm sm:text-base">Room Info</h4>
+                            <div className="text-sm text-gray-600">
+                              <p>Total: {room.total_rooms} rooms</p>
+                              <p>Available: {room.available_rooms} rooms</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-gray-800 text-sm sm:text-base">Owner Contact</h4>
+                          <div className="text-sm text-gray-600">
+                            <p className="flex items-center gap-2">
+                              <Users className="h-4 w-4 flex-shrink-0" />
+                              <span>{room.ownerName}</span>
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <Phone className="h-4 w-4 flex-shrink-0" />
+                              <span>{room.ownerPhone}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {room.description && (
+                          <div className="mt-4">
+                            <p className="text-sm text-gray-700">{room.description}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-row lg:flex-col gap-2 lg:ml-4 flex-shrink-0">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="flex-1 lg:flex-none"
+                          onClick={() => window.open(`tel:${room.ownerPhone}`, '_blank')}
+                        >
+                          <Phone className="h-4 w-4 mr-1" />
+                          Call Owner
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {filteredRooms.length === 0 && (
+              <div className="text-center py-12 sm:py-16">
+                <Bed className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No rooms found</h3>
+                <p className="text-gray-500">Try adjusting your search criteria</p>
               </div>
             )}
           </TabsContent>
