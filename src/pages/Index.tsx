@@ -8,9 +8,8 @@ import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1000000]);
-  const [roomType, setRoomType] = useState("");
+  const [selectedRoomType, setSelectedRoomType] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
 
   const { data: hostels, isLoading, error } = useHostels();
 
@@ -18,18 +17,30 @@ const Index = () => {
     const matchesSearch = hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          hostel.location.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesLocation = !selectedLocation || 
-                           hostel.location.toLowerCase().includes(selectedLocation.toLowerCase());
+    const matchesRoomType = selectedRoomType === 'all' || 
+                           hostel.roomTypes.some(room => room.type === selectedRoomType);
     
-    const matchesRoomType = !roomType || 
-                           hostel.roomTypes.some(room => room.type === roomType);
-    
-    const matchesPrice = hostel.roomTypes.some(room => 
-      room.price >= priceRange[0] && room.price <= priceRange[1]
-    );
+    let matchesPrice = true;
+    if (priceRange !== 'all') {
+      if (priceRange === '0-200000') {
+        matchesPrice = hostel.roomTypes.some(room => room.price <= 200000);
+      } else if (priceRange === '200000-350000') {
+        matchesPrice = hostel.roomTypes.some(room => room.price >= 200000 && room.price <= 350000);
+      } else if (priceRange === '350000-500000') {
+        matchesPrice = hostel.roomTypes.some(room => room.price >= 350000 && room.price <= 500000);
+      } else if (priceRange === '500000+') {
+        matchesPrice = hostel.roomTypes.some(room => room.price >= 500000);
+      }
+    }
 
-    return matchesSearch && matchesLocation && matchesRoomType && matchesPrice;
+    return matchesSearch && matchesRoomType && matchesPrice;
   });
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedRoomType("all");
+    setPriceRange("all");
+  };
 
   if (error) {
     return (
@@ -67,12 +78,11 @@ const Index = () => {
         <SearchFilters 
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
+          selectedRoomType={selectedRoomType}
+          setSelectedRoomType={setSelectedRoomType}
           priceRange={priceRange}
           setPriceRange={setPriceRange}
-          roomType={roomType}
-          setRoomType={setRoomType}
+          onClearFilters={handleClearFilters}
         />
 
         {/* Results */}
