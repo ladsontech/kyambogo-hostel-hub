@@ -8,41 +8,104 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useCreateOwnerProfile } from "@/hooks/useOwnerData";
+import { useEffect } from "react";
 
 const OwnerAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [signupData, setSignupData] = useState({ 
+    name: "", 
+    email: "", 
+    phone: "", 
+    password: "" 
+  });
+  
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, signUp, user, loading } = useAuth();
+  const createOwnerProfile = useCreateOwnerProfile();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/owner/dashboard");
+    }
+  }, [user, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    const { error } = await signIn(loginData.email, loginData.password);
+    
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
       toast({
         title: "Login Successful",
         description: "Welcome back to your dashboard!",
       });
       navigate("/owner/dashboard");
-    }, 1000);
+    }
+    
+    setIsLoading(false);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    const { error } = await signUp(signupData.email, signupData.password);
+    
+    if (error) {
       toast({
-        title: "Account Created",
-        description: "Welcome! You can now manage your hostels.",
+        title: "Sign Up Failed",
+        description: error.message,
+        variant: "destructive"
       });
-      navigate("/owner/dashboard");
-    }, 1000);
+    } else {
+      // Create owner profile after successful signup
+      createOwnerProfile.mutate({
+        name: signupData.name,
+        email: signupData.email,
+        phone: signupData.phone
+      }, {
+        onSuccess: () => {
+          toast({
+            title: "Account Created Successfully",
+            description: "Welcome! You can now manage your hostels.",
+          });
+          navigate("/owner/dashboard");
+        },
+        onError: (error: any) => {
+          toast({
+            title: "Profile Creation Failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      });
+    }
+    
+    setIsLoading(false);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
@@ -80,6 +143,8 @@ const OwnerAuth = () => {
                         type="email"
                         placeholder="your@email.com"
                         className="pl-10"
+                        value={loginData.email}
+                        onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                         required
                       />
                     </div>
@@ -94,6 +159,8 @@ const OwnerAuth = () => {
                         type="password"
                         placeholder="••••••••"
                         className="pl-10"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                         required
                       />
                     </div>
@@ -120,6 +187,8 @@ const OwnerAuth = () => {
                         type="text"
                         placeholder="John Doe"
                         className="pl-10"
+                        value={signupData.name}
+                        onChange={(e) => setSignupData({...signupData, name: e.target.value})}
                         required
                       />
                     </div>
@@ -134,6 +203,8 @@ const OwnerAuth = () => {
                         type="tel"
                         placeholder="+256 700 000 000"
                         className="pl-10"
+                        value={signupData.phone}
+                        onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
                         required
                       />
                     </div>
@@ -148,6 +219,8 @@ const OwnerAuth = () => {
                         type="email"
                         placeholder="your@email.com"
                         className="pl-10"
+                        value={signupData.email}
+                        onChange={(e) => setSignupData({...signupData, email: e.target.value})}
                         required
                       />
                     </div>
@@ -162,6 +235,8 @@ const OwnerAuth = () => {
                         type="password"
                         placeholder="••••••••"
                         className="pl-10"
+                        value={signupData.password}
+                        onChange={(e) => setSignupData({...signupData, password: e.target.value})}
                         required
                       />
                     </div>
@@ -170,9 +245,9 @@ const OwnerAuth = () => {
                   <Button 
                     type="submit" 
                     className="w-full bg-green-600 hover:bg-green-700"
-                    disabled={isLoading}
+                    disabled={isLoading || createOwnerProfile.isPending}
                   >
-                    {isLoading ? "Creating Account..." : "Create Account"}
+                    {isLoading || createOwnerProfile.isPending ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
               </TabsContent>

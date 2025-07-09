@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -19,13 +20,42 @@ export const useOwnerProfile = () => {
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code === 'PGRST116') {
-        // No profile found
-        return null;
-      }
       if (error) throw error;
-
       return data;
+    },
+    enabled: !!supabase.auth.getUser()
+  });
+};
+
+export const useCreateOwnerProfile = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (profileData: {
+      name: string;
+      email: string;
+      phone: string;
+    }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('owners')
+        .insert({
+          user_id: user.id,
+          name: profileData.name,
+          email: profileData.email,
+          phone: profileData.phone
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['owner-profile'] });
     }
   });
 };
@@ -37,62 +67,29 @@ export const useOwnerHostels = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // First get the owner profile
+      const { data: owner, error: ownerError } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (ownerError) throw ownerError;
+
+      // Then get hostels for this owner
       const { data, error } = await supabase
         .from('hostels')
         .select(`
           *,
           rooms(*)
         `)
-        .eq('owner_id', (
-          await supabase
-            .from('owners')
-            .select('id')
-            .eq('user_id', user.id)
-            .single()
-        ).data?.id);
-
-      if (error) throw error;
-
-      return data;
-    }
-  });
-};
-
-export const useCreateOwnerProfile = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (profileData: { name: string; email: string; phone: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase
-        .from('owners')
-        .insert({
-          user_id: user.id,
-          ...profileData
-        })
-        .select()
-        .single();
+        .eq('owner_id', owner.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-profile'] });
-      toast({
-        title: "Profile Created",
-        description: "Your owner profile has been created successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to create profile. Please try again.",
-        variant: "destructive"
-      });
-    }
+    enabled: !!supabase.auth.getUser()
   });
 };
 
@@ -104,25 +101,27 @@ export const useCreateHostel = () => {
     mutationFn: async (hostelData: {
       name: string;
       location: string;
-      description?: string;
-      images?: string[];
+      description: string;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data: owner } = await supabase
+      // Get owner profile
+      const { data: owner, error: ownerError } = await supabase
         .from('owners')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (!owner) throw new Error('Owner profile not found');
+      if (ownerError) throw ownerError;
 
       const { data, error } = await supabase
         .from('hostels')
         .insert({
           owner_id: owner.id,
-          ...hostelData
+          name: hostelData.name,
+          location: hostelData.location,
+          description: hostelData.description
         })
         .select()
         .single();
@@ -132,10 +131,7 @@ export const useCreateHostel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
-      toast({
-        title: "Hostel Created",
-        description: "Your hostel has been submitted for approval.",
-      });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
     }
   });
 };
@@ -165,9 +161,67 @@ export const useCreateRoom = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
+    }
+  });
+};
+
+export const useUpdateRoom = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ roomId, roomData }: {
+      roomId: string;
+      roomData: {
+        type?: RoomType;
+        price?: number;
+        description?: string;
+        images?: string[];
+        total_rooms?: number;
+        available_rooms?: number;
+      };
+    }) => {
+      const { data, error } = await supabase
+        .from('rooms')
+        .update(roomData)
+        .eq('id', roomId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
-        title: "Room Added",
-        description: "Room has been added successfully.",
+        title: "Room Updated",
+        description: "The room has been updated successfully.",
+      });
+    }
+  });
+};
+
+export const useDeleteRoom = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (roomId: string) => {
+      const { error } = await supabase
+        .from('rooms')
+        .delete()
+        .eq('id', roomId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
+      toast({
+        title: "Room Deleted",
+        description: "The room has been deleted successfully.",
       });
     }
   });
