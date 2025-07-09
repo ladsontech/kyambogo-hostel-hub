@@ -14,7 +14,7 @@ export const Header = () => {
           <img 
             src="/images/logo.png" 
             alt="Kyambogo Hostel Connect Logo" 
-            className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+            className="h-14 w-auto object-contain"
           />
           <div className="hidden sm:block">
             <h1 className="text-lg sm:text-xl font-bold text-gray-800">Kyambogo Hostel Connect</h1>
