@@ -5,43 +5,43 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, MessageSquare, Phone, Mail, Eye, CheckCircle, XCircle, LogOut, Search } from "lucide-react";
+import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { mockHostels } from "@/utils/mockData";
-import { useToast } from "@/hooks/use-toast";
+import { useAllHostels, useApproveHostel, useRejectHostel } from "@/hooks/useAdminData";
 
 const AdminDashboard = () => {
-  const [hostels, setHostels] = useState(mockHostels);
   const [searchTerm, setSearchTerm] = useState("");
-  const { toast } = useToast();
+  const { data: hostels, isLoading } = useAllHostels();
+  const approveHostel = useApproveHostel();
+  const rejectHostel = useRejectHostel();
 
-  const pendingHostels = hostels.filter(h => !h.approved);
-  const approvedHostels = hostels.filter(h => h.approved);
+  const pendingHostels = hostels?.filter(h => !h.approved) || [];
+  const approvedHostels = hostels?.filter(h => h.approved) || [];
 
   const handleApprove = (hostelId: string) => {
-    setHostels(prev => prev.map(h => 
-      h.id === hostelId ? { ...h, approved: true } : h
-    ));
-    toast({
-      title: "Hostel Approved",
-      description: "The hostel is now visible to students.",
-    });
+    approveHostel.mutate(hostelId);
   };
 
   const handleReject = (hostelId: string) => {
-    setHostels(prev => prev.filter(h => h.id !== hostelId));
-    toast({
-      title: "Hostel Rejected",
-      description: "The hostel has been removed from the system.",
-      variant: "destructive"
-    });
+    rejectHostel.mutate(hostelId);
   };
 
   const filteredHostels = approvedHostels.filter(hostel =>
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.ownerName.toLowerCase().includes(searchTerm.toLowerCase())
+    hostel.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="flex items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading dashboard...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
               <Building2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{hostels.length}</div>
+              <div className="text-2xl font-bold">{hostels?.length || 0}</div>
               <p className="text-xs text-muted-foreground">
                 {approvedHostels.length} approved
               </p>
@@ -111,7 +111,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {[...new Set(hostels.map(h => h.ownerId))].length}
+                {[...new Set(hostels?.map(h => h.owner_id))].length}
               </div>
               <p className="text-xs text-muted-foreground">
                 Registered owners
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {hostels.reduce((sum, h) => sum + h.roomTypes.length, 0)}
+                {hostels?.reduce((sum, h) => sum + (h.rooms?.length || 0), 0) || 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 Available options
@@ -181,25 +181,25 @@ const AdminDashboard = () => {
                             <div className="text-sm text-gray-600">
                               <p className="flex items-center gap-2">
                                 <Users className="h-4 w-4" />
-                                {hostel.ownerName}
+                                {hostel.owner?.name}
                               </p>
                               <p className="flex items-center gap-2">
                                 <Phone className="h-4 w-4" />
-                                {hostel.ownerContact}
+                                {hostel.owner?.phone}
                               </p>
                             </div>
                           </div>
                           <div className="space-y-2">
                             <h4 className="font-medium text-gray-800">Hostel Info</h4>
                             <div className="text-sm text-gray-600">
-                              <p>{hostel.roomTypes.length} Room Types</p>
-                              <p>Added {hostel.createdAt}</p>
+                              <p>{hostel.rooms?.length || 0} Room Types</p>
+                              <p>Added {new Date(hostel.created_at).toLocaleDateString()}</p>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                          {hostel.roomTypes.map((room) => (
+                          {hostel.rooms?.map((room) => (
                             <Badge key={room.id} variant="outline" className="text-xs">
                               {room.price.toLocaleString()} UGX
                             </Badge>
@@ -217,7 +217,7 @@ const AdminDashboard = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => window.open(`tel:${hostel.ownerContact}`, '_blank')}
+                          onClick={() => window.open(`tel:${hostel.owner?.phone}`, '_blank')}
                         >
                           <Phone className="h-4 w-4 mr-1" />
                           Call
@@ -259,15 +259,15 @@ const AdminDashboard = () => {
                             <div>
                               <h4 className="font-medium text-gray-800 mb-2">Owner Details</h4>
                               <div className="text-sm text-gray-600">
-                                <p>{hostel.ownerName}</p>
-                                <p>{hostel.ownerContact}</p>
+                                <p>{hostel.owner?.name}</p>
+                                <p>{hostel.owner?.phone}</p>
                               </div>
                             </div>
                             <div>
                               <h4 className="font-medium text-gray-800 mb-2">Room Types</h4>
                               <div className="text-sm text-gray-600">
-                                <p>{hostel.roomTypes.length} types available</p>
-                                <p>Submitted {hostel.createdAt}</p>
+                                <p>{hostel.rooms?.length || 0} types available</p>
+                                <p>Submitted {new Date(hostel.created_at).toLocaleDateString()}</p>
                               </div>
                             </div>
                           </div>
@@ -278,6 +278,7 @@ const AdminDashboard = () => {
                             size="sm"
                             className="bg-green-600 hover:bg-green-700"
                             onClick={() => handleApprove(hostel.id)}
+                            disabled={approveHostel.isPending}
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Approve
@@ -287,6 +288,7 @@ const AdminDashboard = () => {
                             size="sm"
                             className="text-red-600 hover:text-red-700 hover:border-red-300"
                             onClick={() => handleReject(hostel.id)}
+                            disabled={rejectHostel.isPending}
                           >
                             <XCircle className="h-4 w-4 mr-1" />
                             Reject

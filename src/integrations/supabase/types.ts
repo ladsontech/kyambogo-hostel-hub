@@ -14,7 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      hostels: {
+        Row: {
+          approved: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          location: string
+          name: string
+          owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location: string
+          name: string
+          owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hostels_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owners: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          phone: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          phone: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      rooms: {
+        Row: {
+          available_rooms: number
+          created_at: string | null
+          description: string | null
+          hostel_id: string
+          id: string
+          images: string[] | null
+          price: number
+          total_rooms: number
+          type: Database["public"]["Enums"]["room_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          available_rooms: number
+          created_at?: string | null
+          description?: string | null
+          hostel_id: string
+          id?: string
+          images?: string[] | null
+          price: number
+          total_rooms: number
+          type: Database["public"]["Enums"]["room_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          available_rooms?: number
+          created_at?: string | null
+          description?: string | null
+          hostel_id?: string
+          id?: string
+          images?: string[] | null
+          price?: number
+          total_rooms?: number
+          type?: Database["public"]["Enums"]["room_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_hostel_id_fkey"
+            columns: ["hostel_id"]
+            isOneToOne: false
+            referencedRelation: "hostels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +143,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      room_type:
+        | "single-self-contained"
+        | "double-self-contained"
+        | "single-shared"
+        | "double-shared"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +274,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      room_type: [
+        "single-self-contained",
+        "double-self-contained",
+        "single-shared",
+        "double-shared",
+      ],
+    },
   },
 } as const
