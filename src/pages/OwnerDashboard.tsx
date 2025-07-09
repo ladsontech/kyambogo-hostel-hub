@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -249,7 +248,7 @@ const OwnerDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-        </tabs>
+        </Tabs>
       </main>
     </div>
   );
