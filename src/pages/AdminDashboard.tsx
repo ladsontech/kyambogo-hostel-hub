@@ -1,13 +1,13 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2 } from "lucide-react";
+import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useApproveHostel, useRejectHostel } from "@/hooks/useAdminData";
+import CarouselManager from "@/components/CarouselManager";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="approved" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-md">
             <TabsTrigger value="approved">Approved Hostels</TabsTrigger>
             <TabsTrigger value="pending" className="relative">
               Pending Review
@@ -145,6 +145,10 @@ const AdminDashboard = () => {
                   {pendingHostels.length}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="carousel">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Carousel
             </TabsTrigger>
           </TabsList>
 
@@ -306,6 +310,11 @@ const AdminDashboard = () => {
                 <p className="text-gray-500">No hostels pending review at the moment</p>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="carousel" className="space-y-6">
+            <h2 className="text-3xl font-bold text-gray-800">Carousel Management</h2>
+            <CarouselManager />
           </TabsContent>
         </Tabs>
       </main>

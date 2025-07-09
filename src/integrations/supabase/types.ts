@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      carousel_images: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hostels: {
         Row: {
           approved: boolean | null

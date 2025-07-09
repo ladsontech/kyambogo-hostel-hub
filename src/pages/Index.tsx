@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
 import { HostelCard } from "@/components/HostelCard";
+import ImageCarousel from "@/components/ImageCarousel";
 import { useHostels } from "@/hooks/useHostels";
 import { Loader2 } from "lucide-react";
 
@@ -80,6 +81,9 @@ const Index = () => {
             Discover comfortable, affordable, and convenient accommodation near Kyambogo University
           </p>
         </div>
+
+        {/* Image Carousel Section */}
+        <ImageCarousel />
 
         {/* Search and Filters */}
         <SearchFilters 
