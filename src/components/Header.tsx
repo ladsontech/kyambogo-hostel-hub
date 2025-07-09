@@ -13,7 +13,7 @@ export const Header = () => {
             <p className="text-xs text-gray-600 hidden md:block">Find Your Perfect Stay</p>
           </div>
           <div className="sm:hidden">
-            <h1 className="text-sm font-bold text-gray-800">KYAMBOGO</h1>
+            <h1 className="text-gray-800 font-extrabold text-2xl">KYAMBOGO</h1>
           </div>
         </Link>
         
