@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -151,51 +152,63 @@ const OwnerDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-white" />
+        <div className="container mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <Building2 className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-800">{hostel.name}</h1>
-              <p className="text-xs text-gray-600">{hostel.location}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-sm sm:text-xl font-bold text-gray-800 truncate">{hostel.name}</h1>
+              <p className="text-xs text-gray-600 truncate hidden sm:block">{hostel.location}</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4 flex-shrink-0">
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => setShowOnboarding(true)}
+              className="hidden sm:flex"
             >
               <Settings className="h-4 w-4 mr-2" />
               Edit Hostel
             </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowOnboarding(true)}
+              className="sm:hidden p-2"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
             <Link to="/">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="hidden sm:flex">
                 <Eye className="h-4 w-4 mr-2" />
                 View Site
               </Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="hidden sm:flex">
               <LogOut className="h-4 w-4 mr-2" />
               Logout
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="sm:hidden p-2">
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="rooms" className="space-y-6">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <Tabs defaultValue="rooms" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="rooms">My Rooms</TabsTrigger>
-            <TabsTrigger value="add-room">Add Room</TabsTrigger>
+            <TabsTrigger value="rooms" className="text-xs sm:text-sm">My Rooms</TabsTrigger>
+            <TabsTrigger value="add-room" className="text-xs sm:text-sm">Add Room</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="rooms" className="space-y-6">
-            <div className="flex items-center justify-between">
+          <TabsContent value="rooms" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-3xl font-bold text-gray-800">Your Rooms</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Your Rooms</h2>
                 <p className="text-gray-600 mt-1">
                   Status: <Badge className={hostel.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
                     {hostel.approved ? 'Approved' : 'Pending Approval'}
@@ -205,34 +218,35 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Rooms Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {hostel.rooms?.map((room) => (
                 <Card key={room.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-base sm:text-lg leading-tight">
                         {ROOM_TYPE_LABELS[room.type as keyof typeof ROOM_TYPE_LABELS]}
                       </CardTitle>
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="text-xs flex-shrink-0">
                         {room.available_rooms}/{room.total_rooms} Available
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-0">
                     <div className="space-y-3">
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-xl sm:text-2xl font-bold text-green-600">
                         UGX {room.price.toLocaleString()}/{room.price_period}
                       </p>
                       <p className="text-gray-600 text-sm line-clamp-2">{room.description}</p>
-                      <div className="flex space-x-2 pt-2">
+                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <EditRoomDialog room={room} />
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleDeleteRoom(room.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 mr-1 sm:mr-0 sm:only:mr-0" />
+                          <span className="sm:hidden">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -242,10 +256,10 @@ const OwnerDashboard = () => {
             </div>
 
             {(!hostel.rooms || hostel.rooms.length === 0) && (
-              <div className="text-center py-16">
-                <Building2 className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No rooms added yet</h3>
-                <p className="text-gray-500 mb-6">Add your first room to start accepting bookings</p>
+              <div className="text-center py-12 sm:py-16">
+                <Building2 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No rooms added yet</h3>
+                <p className="text-gray-500 mb-6 px-4">Add your first room to start accepting bookings</p>
                 <Button 
                   onClick={() => {
                     const addRoomTab = document.querySelector('[value="add-room"]') as HTMLElement;
@@ -260,17 +274,17 @@ const OwnerDashboard = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="add-room" className="space-y-6">
-            <h2 className="text-3xl font-bold text-gray-800">Add New Room</h2>
+          <TabsContent value="add-room" className="space-y-4 sm:space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Add New Room</h2>
             
             <Card>
               <CardHeader>
-                <CardTitle>Room Information</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Room Information</CardTitle>
                 <p className="text-sm text-gray-600">Add a new room type to your hostel</p>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleAddRoom} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleAddRoom} className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <Label>Room Type</Label>
                       <Select 
@@ -304,7 +318,7 @@ const OwnerDashboard = () => {
                     <RadioGroup 
                       value={newRoomData.pricePeriod} 
                       onValueChange={(value: "month" | "semester") => setNewRoomData({...newRoomData, pricePeriod: value})}
-                      className="flex space-x-6"
+                      className="flex flex-col sm:flex-row sm:space-x-6 space-y-2 sm:space-y-0"
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="semester" id="semester" />
@@ -317,7 +331,7 @@ const OwnerDashboard = () => {
                     </RadioGroup>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <Label>Total Rooms</Label>
                       <Input 
@@ -362,7 +376,7 @@ const OwnerDashboard = () => {
                     />
                   </div>
 
-                  <div className="flex space-x-4 pt-6">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6">
                     <Button 
                       type="submit" 
                       className="flex-1 bg-green-600 hover:bg-green-700"
