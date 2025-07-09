@@ -30,7 +30,7 @@ const HostelDetails = () => {
   if (error || !hostel) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-2 sm:px-4 py-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-red-600 mb-4">Hostel Not Found</h2>
             <p className="text-gray-600 mb-4">The hostel you're looking for doesn't exist or is not available.</p>
@@ -55,7 +55,7 @@ const HostelDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center">
+        <div className="container mx-auto px-2 sm:px-4 h-16 flex items-center">
           <Link to="/">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -65,29 +65,29 @@ const HostelDetails = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Hostel Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{hostel.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{hostel.name}</h1>
               <div className="flex items-center text-gray-600 mb-4">
-                <MapPin className="h-5 w-5 mr-2" />
-                <span>{hostel.location}</span>
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                <span className="text-sm sm:text-base">{hostel.location}</span>
               </div>
               <div className="flex items-center mb-4">
                 <div className="flex items-center mr-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
                   ))}
-                  <span className="ml-2 text-gray-600">4.8 (124 reviews)</span>
+                  <span className="ml-2 text-gray-600 text-sm sm:text-base">4.8 (124 reviews)</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Images Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
             {hostel.images.map((image, index) => (
               <div key={index} className={`rounded-lg overflow-hidden ${index === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
                 <img
@@ -100,35 +100,35 @@ const HostelDetails = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
             {/* Description */}
             <Card>
-              <CardHeader>
-                <CardTitle>About This Hostel</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">About This Hostel</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">{hostel.description}</p>
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{hostel.description}</p>
               </CardContent>
             </Card>
 
             {/* Amenities */}
             {hostelAmenities.length > 0 && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Amenities</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl">Amenities</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     {hostelAmenities.map((amenity) => {
                       const IconComponent = amenity.icon === 'Wifi' ? Wifi :
                                           amenity.icon === 'Car' ? Car :
                                           amenity.icon === 'Shield' ? Shield : Coffee;
                       return (
                         <div key={amenity.id} className="flex items-center space-x-2">
-                          <IconComponent className="h-5 w-5 text-green-600" />
-                          <span className="text-sm text-gray-700">{amenity.name}</span>
+                          <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                          <span className="text-xs sm:text-sm text-gray-700">{amenity.name}</span>
                         </div>
                       );
                     })}
@@ -139,22 +139,22 @@ const HostelDetails = () => {
 
             {/* Room Types */}
             <Card>
-              <CardHeader>
-                <CardTitle>Available Room Types</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Available Room Types</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="space-y-4 sm:space-y-6">
                   {hostel.roomTypes.map((room) => (
-                    <div key={room.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={room.id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                           {ROOM_TYPE_LABELS[room.type]}
                         </h3>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-green-600">
+                          <div className="text-xl sm:text-2xl font-bold text-green-600">
                             {room.price.toLocaleString()} UGX
                           </div>
-                          <div className="text-sm text-gray-500">per {room.pricePeriod}</div>
+                          <div className="text-xs sm:text-sm text-gray-500">per {room.pricePeriod}</div>
                         </div>
                       </div>
                       
@@ -165,14 +165,14 @@ const HostelDetails = () => {
                         </div>
                       )}
                       
-                      <p className="text-gray-600 mb-3">{room.description}</p>
+                      <p className="text-gray-600 mb-3 text-sm sm:text-base">{room.description}</p>
                       
                       <div className="flex items-center justify-between">
                         <Badge 
                           className={
                             room.availableRooms > 0 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-green-100 text-green-800 text-xs sm:text-sm' 
+                              : 'bg-red-100 text-red-800 text-xs sm:text-sm'
                           }
                         >
                           {room.availableRooms > 0 
@@ -184,6 +184,7 @@ const HostelDetails = () => {
                           size="sm"
                           disabled={room.availableRooms === 0}
                           onClick={() => window.open(generateWhatsAppLink(hostel.name, ROOM_TYPE_LABELS[room.type]), '_blank')}
+                          className="text-xs sm:text-sm"
                         >
                           Book Now
                         </Button>
@@ -196,32 +197,32 @@ const HostelDetails = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Contact Info */}
             <Card>
-              <CardHeader>
-                <CardTitle>Contact Owner</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Contact Owner</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
                 <div>
-                  <p className="font-medium text-gray-800">{hostel.ownerName}</p>
+                  <p className="font-medium text-gray-800 text-sm sm:text-base">{hostel.ownerName}</p>
                   <div className="flex items-center text-gray-600 mt-1">
-                    <Phone className="h-4 w-4 mr-2" />
-                    <span>{hostel.ownerContact}</span>
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                    <span className="text-xs sm:text-sm">{hostel.ownerContact}</span>
                   </div>
                 </div>
                 <Button 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                   onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
                 >
                   Contact via WhatsApp
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full text-xs sm:text-sm"
                   onClick={() => window.open(`tel:${callPhoneNumber}`, '_blank')}
                 >
-                  <Phone className="h-4 w-4 mr-2" />
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Call Now
                 </Button>
               </CardContent>
@@ -229,23 +230,23 @@ const HostelDetails = () => {
 
             {/* Quick Info */}
             <Card>
-              <CardHeader>
-                <CardTitle>Quick Info</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Quick Info</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Room Types:</span>
-                  <span className="font-medium">{hostel.roomTypes.length}</span>
+                  <span className="text-gray-600 text-xs sm:text-sm">Total Room Types:</span>
+                  <span className="font-medium text-xs sm:text-sm">{hostel.roomTypes.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Available Rooms:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-600 text-xs sm:text-sm">Available Rooms:</span>
+                  <span className="font-medium text-xs sm:text-sm">
                     {hostel.roomTypes.reduce((sum, room) => sum + room.availableRooms, 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Price Range:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-600 text-xs sm:text-sm">Price Range:</span>
+                  <span className="font-medium text-xs sm:text-sm">
                     {Math.min(...hostel.roomTypes.map(r => r.price)).toLocaleString()} - {Math.max(...hostel.roomTypes.map(r => r.price)).toLocaleString()} UGX
                   </span>
                 </div>
