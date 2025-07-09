@@ -102,6 +102,7 @@ export const useCreateOrUpdateHostel = () => {
       location: string;
       description: string;
       images?: string[];
+      amenities?: string[];
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -130,7 +131,8 @@ export const useCreateOrUpdateHostel = () => {
             name: hostelData.name,
             location: hostelData.location,
             description: hostelData.description,
-            images: hostelData.images || []
+            images: hostelData.images || [],
+            amenities: hostelData.amenities || []
           })
           .eq('id', existingHostel.id)
           .select()
@@ -147,7 +149,8 @@ export const useCreateOrUpdateHostel = () => {
             name: hostelData.name,
             location: hostelData.location,
             description: hostelData.description,
-            images: hostelData.images || []
+            images: hostelData.images || [],
+            amenities: hostelData.amenities || []
           })
           .select()
           .single();

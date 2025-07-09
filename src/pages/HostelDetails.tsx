@@ -4,10 +4,11 @@ import { ArrowLeft, MapPin, Phone, Star, Wifi, Car, Shield, Coffee } from "lucid
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ROOM_TYPE_LABELS } from "@/types/hostel";
+import { ROOM_TYPE_LABELS, AVAILABLE_AMENITIES } from "@/types/hostel";
 import { generateWhatsAppLink } from "@/utils/mockData";
 import { useHostel } from "@/hooks/useHostels";
 import { Loader2 } from "lucide-react";
+import ImageCarousel from "@/components/ImageCarousel";
 
 const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,12 +46,10 @@ const HostelDetails = () => {
     );
   }
 
-  const amenities = [
-    { icon: Wifi, name: "Free WiFi" },
-    { icon: Car, name: "Parking" },
-    { icon: Shield, name: "24/7 Security" },
-    { icon: Coffee, name: "Common Area" }
-  ];
+  // Get available amenities based on hostel's amenities array
+  const hostelAmenities = AVAILABLE_AMENITIES.filter(amenity => 
+    hostel.amenities?.includes(amenity.id)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -115,21 +114,28 @@ const HostelDetails = () => {
             </Card>
 
             {/* Amenities */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Amenities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {amenities.map((amenity, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <amenity.icon className="h-5 w-5 text-green-600" />
-                      <span className="text-sm text-gray-700">{amenity.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {hostelAmenities.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Amenities</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {hostelAmenities.map((amenity) => {
+                      const IconComponent = amenity.icon === 'Wifi' ? Wifi :
+                                          amenity.icon === 'Car' ? Car :
+                                          amenity.icon === 'Shield' ? Shield : Coffee;
+                      return (
+                        <div key={amenity.id} className="flex items-center space-x-2">
+                          <IconComponent className="h-5 w-5 text-green-600" />
+                          <span className="text-sm text-gray-700">{amenity.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Room Types */}
             <Card>
@@ -137,7 +143,7 @@ const HostelDetails = () => {
                 <CardTitle>Available Room Types</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {hostel.roomTypes.map((room) => (
                     <div key={room.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-3">
@@ -151,6 +157,13 @@ const HostelDetails = () => {
                           <div className="text-sm text-gray-500">per {room.pricePeriod}</div>
                         </div>
                       </div>
+                      
+                      {/* Room Images */}
+                      {room.images && room.images.length > 0 && (
+                        <div className="mb-4">
+                          <ImageCarousel images={room.images} />
+                        </div>
+                      )}
                       
                       <p className="text-gray-600 mb-3">{room.description}</p>
                       

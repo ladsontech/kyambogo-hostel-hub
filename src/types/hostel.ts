@@ -22,6 +22,7 @@ export interface Hostel {
   ownerContact: string;
   approved: boolean;
   createdAt: string;
+  amenities?: string[];
 }
 
 export interface Owner {
@@ -38,3 +39,10 @@ export const ROOM_TYPE_LABELS = {
   'single-shared': 'Single Room (Shared Bathroom)',
   'double-shared': 'Double Room (Shared Bathroom)'
 } as const;
+
+export const AVAILABLE_AMENITIES = [
+  { id: 'wifi', name: 'Free WiFi', icon: 'Wifi' },
+  { id: 'parking', name: 'Parking', icon: 'Car' },
+  { id: 'security', name: '24/7 Security', icon: 'Shield' },
+  { id: 'common_area', name: 'Common Area', icon: 'Coffee' }
+] as const;

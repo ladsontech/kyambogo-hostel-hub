@@ -38,7 +38,8 @@ export const useHostels = () => {
         ownerName: hostel.owner?.name || '',
         ownerContact: hostel.owner?.phone || '',
         approved: hostel.approved,
-        createdAt: new Date(hostel.created_at).toISOString().split('T')[0]
+        createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
+        amenities: hostel.amenities || []
       }));
     }
   });
@@ -81,7 +82,8 @@ export const useHostel = (id: string) => {
         ownerName: data.owner?.name || '',
         ownerContact: data.owner?.phone || '',
         approved: data.approved,
-        createdAt: new Date(data.created_at).toISOString().split('T')[0]
+        createdAt: new Date(data.created_at).toISOString().split('T')[0],
+        amenities: data.amenities || []
       };
 
       return hostel;

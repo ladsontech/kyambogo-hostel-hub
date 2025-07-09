@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Building2, ArrowRight, Loader2, Wifi, Car, Shield, Coffee } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateOrUpdateHostel } from "@/hooks/useOwnerData";
 import ImageUpload from "@/components/ImageUpload";
+import { AVAILABLE_AMENITIES } from "@/types/hostel";
 
 interface HostelOnboardingProps {
   onComplete: () => void;
@@ -17,6 +19,7 @@ interface HostelOnboardingProps {
     location: string;
     description: string;
     images: string[];
+    amenities?: string[];
   };
 }
 
@@ -25,11 +28,21 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
     name: existingHostel?.name || "",
     location: existingHostel?.location || "",
     description: existingHostel?.description || "",
-    images: existingHostel?.images || []
+    images: existingHostel?.images || [],
+    amenities: existingHostel?.amenities || []
   });
   
   const { toast } = useToast();
   const createOrUpdateHostel = useCreateOrUpdateHostel();
+
+  const handleAmenityChange = (amenityId: string, checked: boolean) => {
+    setHostelData(prev => ({
+      ...prev,
+      amenities: checked 
+        ? [...prev.amenities, amenityId]
+        : prev.amenities.filter(id => id !== amenityId)
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +65,16 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
         });
       }
     });
+  };
+
+  const getAmenityIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Wifi': return Wifi;
+      case 'Car': return Car;
+      case 'Shield': return Shield;
+      case 'Coffee': return Coffee;
+      default: return Wifi;
+    }
   };
 
   return (
@@ -103,6 +126,32 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
                 onChange={(e) => setHostelData({...hostelData, description: e.target.value})}
                 required 
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Amenities</Label>
+              <div className="grid grid-cols-2 gap-4">
+                {AVAILABLE_AMENITIES.map((amenity) => {
+                  const IconComponent = getAmenityIcon(amenity.icon);
+                  return (
+                    <div key={amenity.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={amenity.id}
+                        checked={hostelData.amenities.includes(amenity.id)}
+                        onCheckedChange={(checked) => 
+                          handleAmenityChange(amenity.id, checked as boolean)
+                        }
+                      />
+                      <div className="flex items-center space-x-2">
+                        <IconComponent className="h-4 w-4 text-green-600" />
+                        <Label htmlFor={amenity.id} className="text-sm">
+                          {amenity.name}
+                        </Label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-2">
