@@ -49,7 +49,7 @@ const Index = () => {
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Hostels</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-4">Error Loading Hostels</h2>
             <p className="text-gray-600">Please try refreshing the page.</p>
           </div>
         </div>
@@ -61,47 +61,51 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-6">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <img 
-              src="/public/images/logo.png" 
+              src="/images/logo.png" 
               alt="Kyambogo Hostel Connect" 
-              className="w-20 h-20 object-contain"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
             />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-800 mb-3 sm:mb-4 px-2">
             Find Your Perfect
-            <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent block sm:inline">
               {" "}Student Hostel
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             Discover comfortable, affordable, and convenient accommodation near Kyambogo University
           </p>
         </div>
 
         {/* Image Carousel Section */}
-        <ImageCarousel />
+        <div className="mb-8 sm:mb-12">
+          <ImageCarousel />
+        </div>
 
         {/* Search and Filters */}
-        <SearchFilters 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedRoomType={selectedRoomType}
-          setSelectedRoomType={setSelectedRoomType}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          onClearFilters={handleClearFilters}
-        />
+        <div className="mb-6 sm:mb-8">
+          <SearchFilters 
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedRoomType={selectedRoomType}
+            setSelectedRoomType={setSelectedRoomType}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            onClearFilters={handleClearFilters}
+          />
+        </div>
 
         {/* Results */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
             Available Hostels
             {filteredHostels && (
-              <span className="text-lg font-normal text-gray-600 ml-2">
+              <span className="text-base sm:text-lg font-normal text-gray-600 ml-2 block sm:inline">
                 ({filteredHostels.length} found)
               </span>
             )}
@@ -114,7 +118,7 @@ const Index = () => {
             <span className="ml-2 text-gray-600">Loading hostels...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredHostels?.map((hostel) => (
               <HostelCard key={hostel.id} hostel={hostel} />
             ))}
@@ -123,7 +127,7 @@ const Index = () => {
 
         {filteredHostels?.length === 0 && !isLoading && (
           <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No hostels found</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No hostels found</h3>
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </div>
         )}
