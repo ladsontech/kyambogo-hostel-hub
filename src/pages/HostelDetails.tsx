@@ -13,6 +13,8 @@ const HostelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: hostel, isLoading, error } = useHostel(id || '');
 
+  const callPhoneNumber = "256789572007"; // Updated call number
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
@@ -146,7 +148,7 @@ const HostelDetails = () => {
                           <div className="text-2xl font-bold text-green-600">
                             {room.price.toLocaleString()} UGX
                           </div>
-                          <div className="text-sm text-gray-500">per month</div>
+                          <div className="text-sm text-gray-500">per {room.pricePeriod}</div>
                         </div>
                       </div>
                       
@@ -204,7 +206,7 @@ const HostelDetails = () => {
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => window.open(`tel:${hostel.ownerContact}`, '_blank')}
+                  onClick={() => window.open(`tel:${callPhoneNumber}`, '_blank')}
                 >
                   <Phone className="h-4 w-4 mr-2" />
                   Call Now

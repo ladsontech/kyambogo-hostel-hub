@@ -1,4 +1,3 @@
-
 import { Hostel } from "@/types/hostel";
 
 export const mockHostels: Hostel[] = [
@@ -115,10 +114,18 @@ export const mockHostels: Hostel[] = [
 ];
 
 export const generateWhatsAppLink = (hostelName: string, roomType?: string) => {
-  const adminNumber = "+256700000000"; // Replace with actual admin number
-  const message = roomType 
-    ? `Hello! I'm interested in the ${roomType} at ${hostelName}. Can you help me get in touch with the owner?`
-    : `Hello! I'm interested in ${hostelName}. Can you help me get in touch with the owner?`;
+  const phoneNumber = "256701792387"; // Updated WhatsApp number
+  const baseUrl = window.location.origin;
+  const hostelUrl = `${baseUrl}${window.location.pathname}`;
   
-  return `https://wa.me/${adminNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
+  let message = `Hello! I'm interested in ${hostelName}.`;
+  
+  if (roomType) {
+    message += ` Specifically, I'd like to know more about the ${roomType}.`;
+  }
+  
+  message += ` I found your listing at ${hostelUrl}. Could you please provide more details about availability, pricing, and booking procedures? Thank you!`;
+  
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 };
