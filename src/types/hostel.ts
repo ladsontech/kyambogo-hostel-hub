@@ -1,10 +1,11 @@
-
 export interface RoomType {
   id: string;
   type: 'single-self-contained' | 'double-self-contained' | 'single-shared' | 'double-shared';
   price: number;
   description: string;
   images: string[];
+  totalRooms: number;
+  availableRooms: number;
 }
 
 export interface Hostel {

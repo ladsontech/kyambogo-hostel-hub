@@ -14,26 +14,44 @@ import { ROOM_TYPE_LABELS } from "@/types/hostel";
 import { useToast } from "@/hooks/use-toast";
 
 const OwnerDashboard = () => {
-  const [hostels, setHostels] = useState([
+  const [hostels] = useState([
     {
       id: "1",
       name: "Green Valley Hostel",
       location: "Banda, Near Kyambogo University",
       status: "approved",
-      roomTypes: 2,
-      created: "2024-01-15"
+      rooms: [
+        {
+          id: "r1",
+          type: "single-self-contained",
+          price: 350000,
+          description: "Spacious single room with private bathroom, study desk, and wardrobe.",
+          available: 5,
+          total: 8
+        },
+        {
+          id: "r2", 
+          type: "double-self-contained",
+          price: 450000,
+          description: "Comfortable double room with two beds and private bathroom.",
+          available: 2,
+          total: 4
+        }
+      ]
     }
   ]);
-  const [showAddHostel, setShowAddHostel] = useState(false);
+  
+  const [selectedHostel, setSelectedHostel] = useState(hostels[0]);
+  const [showAddRoom, setShowAddRoom] = useState(false);
   const { toast } = useToast();
 
-  const handleAddHostel = (e: React.FormEvent) => {
+  const handleAddRoom = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Hostel Submitted",
-      description: "Your hostel has been submitted for review. You'll be notified once it's approved.",
+      title: "Room Added",
+      description: "Your room has been added successfully and is now available for booking.",
     });
-    setShowAddHostel(false);
+    setShowAddRoom(false);
   };
 
   return (
@@ -47,7 +65,7 @@ const OwnerDashboard = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Owner Dashboard</h1>
-              <p className="text-xs text-gray-600">Manage Your Hostels</p>
+              <p className="text-xs text-gray-600">Manage Your Rooms</p>
             </div>
           </div>
           
@@ -69,181 +87,169 @@ const OwnerDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="hostels" className="space-y-6">
+        <Tabs defaultValue="rooms" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="hostels">My Hostels</TabsTrigger>
-            <TabsTrigger value="add-hostel">Add Hostel</TabsTrigger>
+            <TabsTrigger value="rooms">My Rooms</TabsTrigger>
+            <TabsTrigger value="add-room">Add Room</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="hostels" className="space-y-6">
+          <TabsContent value="rooms" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold text-gray-800">My Hostels</h2>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800">Room Management</h2>
+                <p className="text-gray-600 mt-1">Manage rooms in {selectedHostel.name}</p>
+              </div>
               <Button 
-                onClick={() => setShowAddHostel(true)}
+                onClick={() => setShowAddRoom(true)}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add New Hostel
+                Add New Room
               </Button>
             </div>
 
+            {/* Hostel Info Card */}
+            <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl text-green-800">{selectedHostel.name}</CardTitle>
+                    <p className="text-green-600 mt-1">{selectedHostel.location}</p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800">
+                    {selectedHostel.status}
+                  </Badge>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Rooms Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {hostels.map((hostel) => (
-                <Card key={hostel.id} className="hover:shadow-lg transition-shadow">
+              {selectedHostel.rooms.map((room) => (
+                <Card key={room.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl">{hostel.name}</CardTitle>
+                      <CardTitle className="text-lg">{ROOM_TYPE_LABELS[room.type]}</CardTitle>
                       <Badge 
                         className={
-                          hostel.status === 'approved' 
+                          room.available > 0 
                             ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                         }
                       >
-                        {hostel.status}
+                        {room.available}/{room.total} Available
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 mb-4">{hostel.location}</p>
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <span>{hostel.roomTypes} Room Types</span>
-                      <span>Added {hostel.created}</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <div className="space-y-3">
+                      <div className="text-2xl font-bold text-green-600">
+                        {room.price.toLocaleString()} UGX/month
+                      </div>
+                      <p className="text-gray-600 text-sm line-clamp-2">{room.description}</p>
+                      <div className="flex space-x-2 pt-2">
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {hostels.length === 0 && (
+            {selectedHostel.rooms.length === 0 && (
               <div className="text-center py-16">
                 <Building2 className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No hostels yet</h3>
-                <p className="text-gray-500 mb-6">Add your first hostel to get started</p>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No rooms added yet</h3>
+                <p className="text-gray-500 mb-6">Add your first room to start accepting bookings</p>
                 <Button 
-                  onClick={() => setShowAddHostel(true)}
+                  onClick={() => setShowAddRoom(true)}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Your First Hostel
+                  Add Your First Room
                 </Button>
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="add-hostel" className="space-y-6">
-            <h2 className="text-3xl font-bold text-gray-800">Add New Hostel</h2>
+          <TabsContent value="add-room" className="space-y-6">
+            <h2 className="text-3xl font-bold text-gray-800">Add New Room</h2>
             
             <Card>
               <CardHeader>
-                <CardTitle>Hostel Information</CardTitle>
+                <CardTitle>Room Information</CardTitle>
+                <p className="text-sm text-gray-600">Add a new room type to {selectedHostel.name}</p>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleAddHostel} className="space-y-6">
+                <form onSubmit={handleAddRoom} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="hostel-name">Hostel Name</Label>
-                      <Input id="hostel-name" placeholder="e.g., Green Valley Hostel" required />
+                      <Label>Room Type</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select room type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(ROOM_TYPE_LABELS).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input id="location" placeholder="e.g., Banda, Near Kyambogo University" required />
+                      <Label>Price (UGX per month)</Label>
+                      <Input type="number" placeholder="350000" required />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label>Total Rooms</Label>
+                      <Input type="number" placeholder="10" min="1" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Currently Available</Label>
+                      <Input type="number" placeholder="8" min="0" required />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label>Room Description</Label>
                     <Textarea 
-                      id="description" 
-                      placeholder="Describe your hostel, its amenities, and what makes it special..."
+                      placeholder="Describe this room type, its features, amenities, and what makes it special..."
                       rows={4}
                       required 
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Hostel Images</Label>
+                    <Label>Room Images</Label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                       <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <p className="text-gray-600 mb-2">Click to upload hostel images</p>
-                      <p className="text-sm text-gray-500">PNG, JPG up to 10MB each</p>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-6">
-                    <h3 className="text-xl font-semibold mb-4">Room Types</h3>
-                    
-                    <div className="space-y-6">
-                      <Card className="border-2 border-green-200">
-                        <CardHeader>
-                          <CardTitle className="text-lg">Room Type 1</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label>Room Type</Label>
-                              <Select>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select room type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(ROOM_TYPE_LABELS).map(([key, label]) => (
-                                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label>Price (UGX per month)</Label>
-                              <Input type="number" placeholder="350000" />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Room Description</Label>
-                            <Textarea 
-                              placeholder="Describe this room type, its features, and amenities..."
-                              rows={3}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Room Images</Label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                              <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                              <p className="text-sm text-gray-600">Upload room images</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Button type="button" variant="outline" className="w-full">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Another Room Type
-                      </Button>
+                      <p className="text-gray-600 mb-2">Click to upload room images</p>
+                      <p className="text-sm text-gray-500">PNG, JPG up to 10MB each (Max 5 images)</p>
                     </div>
                   </div>
 
                   <div className="flex space-x-4 pt-6">
                     <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
-                      Submit Hostel for Review
+                      Add Room
                     </Button>
                     <Button type="button" variant="outline" className="flex-1">
-                      Save as Draft
+                      Cancel
                     </Button>
                   </div>
                 </form>
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+        </tabs>
       </main>
     </div>
   );
