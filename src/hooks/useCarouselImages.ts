@@ -24,34 +24,59 @@ export const useUploadCarouselImage = () => {
 
   return useMutation({
     mutationFn: async ({ file, displayOrder }: { file: File; displayOrder: number }) => {
-      // Upload image to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `carousel/${fileName}`;
+      try {
+        console.log('Starting carousel image upload...');
+        
+        // Upload image to storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `carousel/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('carousel-images')
-        .upload(filePath, file);
+        console.log('Uploading to path:', filePath);
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from('carousel-images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-      // Get public URL
-      const { data } = supabase.storage
-        .from('carousel-images')
-        .getPublicUrl(filePath);
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw uploadError;
+        }
 
-      // Save to database
-      const { data: carouselData, error: dbError } = await supabase
-        .from('carousel_images')
-        .insert({
-          image_url: data.publicUrl,
-          display_order: displayOrder
-        })
-        .select()
-        .single();
+        console.log('File uploaded successfully, getting public URL...');
 
-      if (dbError) throw dbError;
-      return carouselData;
+        // Get public URL
+        const { data } = supabase.storage
+          .from('carousel-images')
+          .getPublicUrl(filePath);
+
+        console.log('Public URL:', data.publicUrl);
+
+        // Save to database
+        console.log('Saving to database...');
+        const { data: carouselData, error: dbError } = await supabase
+          .from('carousel_images')
+          .insert({
+            image_url: data.publicUrl,
+            display_order: displayOrder
+          })
+          .select()
+          .single();
+
+        if (dbError) {
+          console.error('Database error:', dbError);
+          throw dbError;
+        }
+
+        console.log('Carousel image saved successfully:', carouselData);
+        return carouselData;
+      } catch (error) {
+        console.error('Full upload error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carousel-images'] });
@@ -61,9 +86,10 @@ export const useUploadCarouselImage = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Upload mutation error:', error);
       toast({
         title: "Upload Failed",
-        description: error.message,
+        description: error.message || "Failed to upload carousel image",
         variant: "destructive"
       });
     }
