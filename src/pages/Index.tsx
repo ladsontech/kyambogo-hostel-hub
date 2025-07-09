@@ -63,6 +63,13 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/public/images/logo.png" 
+              alt="Kyambogo Hostel Connect" 
+              className="w-20 h-20 object-contain"
+            />
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
             Find Your Perfect
             <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
