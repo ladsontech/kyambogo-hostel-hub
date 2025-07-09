@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Plus, Trash2, Eye, LogOut, Settings, Loader2 } from "lucide-react";
+import { Building2, Plus, Trash2, Eye, LogOut, Settings, Loader2, Wifi, Car, Shield, Coffee } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { ROOM_TYPE_LABELS } from "@/types/hostel";
+import { ROOM_TYPE_LABELS, AVAILABLE_AMENITIES } from "@/types/hostel";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerHostel, useCreateRoom, useDeleteRoom } from "@/hooks/useOwnerData";
@@ -112,6 +112,24 @@ const OwnerDashboard = () => {
     deleteRoom.mutate(roomId);
   };
 
+  const getAmenityIcon = (amenityId: string) => {
+    const amenity = AVAILABLE_AMENITIES.find(a => a.id === amenityId);
+    if (!amenity) return Wifi;
+    
+    switch (amenity.icon) {
+      case 'Wifi': return Wifi;
+      case 'Car': return Car;
+      case 'Shield': return Shield;
+      case 'Coffee': return Coffee;
+      default: return Wifi;
+    }
+  };
+
+  const getAmenityName = (amenityId: string) => {
+    const amenity = AVAILABLE_AMENITIES.find(a => a.id === amenityId);
+    return amenity?.name || amenityId;
+  };
+
   if (loading || hostelLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
@@ -142,7 +160,7 @@ const OwnerDashboard = () => {
           location: hostel.location,
           description: hostel.description || "",
           images: hostel.images || [],
-          amenities: (hostel as any).amenities || []
+          amenities: hostel.amenities || []
         }}
       />
     );
@@ -199,11 +217,108 @@ const OwnerDashboard = () => {
       </header>
 
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <Tabs defaultValue="rooms" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="rooms" className="text-xs sm:text-sm">My Rooms</TabsTrigger>
             <TabsTrigger value="add-room" className="text-xs sm:text-sm">Add Room</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Hostel Overview</h2>
+                <p className="text-gray-600 mt-1">
+                  Status: <Badge className={hostel.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                    {hostel.approved ? 'Approved' : 'Pending Approval'}
+                  </Badge>
+                </p>
+              </div>
+            </div>
+
+            {/* Hostel Info Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Basic Info */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg sm:text-xl">Basic Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Name</Label>
+                    <p className="text-sm sm:text-base">{hostel.name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Location</Label>
+                    <p className="text-sm sm:text-base">{hostel.location}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Description</Label>
+                    <p className="text-sm sm:text-base text-gray-700 line-clamp-3">{hostel.description}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Amenities */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg sm:text-xl">Amenities</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {hostel.amenities && hostel.amenities.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {hostel.amenities.map((amenityId) => {
+                        const IconComponent = getAmenityIcon(amenityId);
+                        return (
+                          <div key={amenityId} className="flex items-center space-x-2">
+                            <IconComponent className="h-4 w-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm">{getAmenityName(amenityId)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">No amenities added yet</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Statistics */}
+              <Card className="lg:col-span-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg sm:text-xl">Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-green-600">
+                        {hostel.rooms?.length || 0}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Room Types</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                        {hostel.rooms?.reduce((sum, room) => sum + room.total_rooms, 0) || 0}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Total Rooms</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-orange-600">
+                        {hostel.rooms?.reduce((sum, room) => sum + room.available_rooms, 0) || 0}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Available</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-purple-600">
+                        {hostel.amenities?.length || 0}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Amenities</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="rooms" className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -40,6 +40,7 @@ export type Database = {
       }
       hostels: {
         Row: {
+          amenities: string[] | null
           approved: boolean | null
           created_at: string | null
           description: string | null
@@ -51,6 +52,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          amenities?: string[] | null
           approved?: boolean | null
           created_at?: string | null
           description?: string | null
@@ -62,6 +64,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          amenities?: string[] | null
           approved?: boolean | null
           created_at?: string | null
           description?: string | null
