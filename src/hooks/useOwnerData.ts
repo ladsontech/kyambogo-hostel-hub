@@ -60,9 +60,9 @@ export const useCreateOwnerProfile = () => {
   });
 };
 
-export const useOwnerHostels = () => {
+export const useOwnerHostel = () => {
   return useQuery({
-    queryKey: ['owner-hostels'],
+    queryKey: ['owner-hostel'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -76,7 +76,7 @@ export const useOwnerHostels = () => {
 
       if (ownerError) throw ownerError;
 
-      // Then get hostels for this owner
+      // Then get the hostel for this owner
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -84,7 +84,7 @@ export const useOwnerHostels = () => {
           rooms(*)
         `)
         .eq('owner_id', owner.id)
-        .order('created_at', { ascending: false });
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -93,7 +93,7 @@ export const useOwnerHostels = () => {
   });
 };
 
-export const useCreateHostel = () => {
+export const useCreateOrUpdateHostel = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -116,23 +116,49 @@ export const useCreateHostel = () => {
 
       if (ownerError) throw ownerError;
 
-      const { data, error } = await supabase
+      // Check if hostel already exists
+      const { data: existingHostel } = await supabase
         .from('hostels')
-        .insert({
-          owner_id: owner.id,
-          name: hostelData.name,
-          location: hostelData.location,
-          description: hostelData.description,
-          images: hostelData.images || []
-        })
-        .select()
-        .single();
+        .select('id')
+        .eq('owner_id', owner.id)
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (existingHostel) {
+        // Update existing hostel
+        const { data, error } = await supabase
+          .from('hostels')
+          .update({
+            name: hostelData.name,
+            location: hostelData.location,
+            description: hostelData.description,
+            images: hostelData.images || []
+          })
+          .eq('id', existingHostel.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        // Create new hostel
+        const { data, error } = await supabase
+          .from('hostels')
+          .insert({
+            owner_id: owner.id,
+            name: hostelData.name,
+            location: hostelData.location,
+            description: hostelData.description,
+            images: hostelData.images || []
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-hostel'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
     }
   });
@@ -162,7 +188,7 @@ export const useCreateRoom = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-hostel'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
     }
   });
@@ -195,7 +221,7 @@ export const useUpdateRoom = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-hostel'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Room Updated",
@@ -219,7 +245,7 @@ export const useDeleteRoom = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-hostel'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Room Deleted",
