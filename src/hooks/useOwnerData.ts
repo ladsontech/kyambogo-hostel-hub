@@ -102,6 +102,7 @@ export const useCreateHostel = () => {
       name: string;
       location: string;
       description: string;
+      images?: string[];
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -121,7 +122,8 @@ export const useCreateHostel = () => {
           owner_id: owner.id,
           name: hostelData.name,
           location: hostelData.location,
-          description: hostelData.description
+          description: hostelData.description,
+          images: hostelData.images || []
         })
         .select()
         .single();

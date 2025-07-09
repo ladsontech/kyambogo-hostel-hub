@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerHostels, useCreateHostel, useCreateRoom } from "@/hooks/useOwnerData";
 import { Database } from "@/integrations/supabase/types";
+import ImageUpload from "@/components/ImageUpload";
 
 type RoomType = Database['public']['Enums']['room_type'];
 
@@ -23,14 +24,16 @@ const OwnerDashboard = () => {
   const [newHostelData, setNewHostelData] = useState({
     name: "",
     location: "",
-    description: ""
+    description: "",
+    images: [] as string[]
   });
   const [newRoomData, setNewRoomData] = useState({
     type: "" as RoomType,
     price: "",
     description: "",
     totalRooms: "",
-    availableRooms: ""
+    availableRooms: "",
+    images: [] as string[]
   });
   const [selectedHostelId, setSelectedHostelId] = useState<string>("");
   
@@ -64,13 +67,21 @@ const OwnerDashboard = () => {
   const handleCreateHostel = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    createHostel.mutate(newHostelData, {
+    createHostel.mutate({
+      ...newHostelData,
+      images: newHostelData.images
+    }, {
       onSuccess: () => {
         toast({
           title: "Hostel Created",
           description: "Your hostel has been submitted for approval.",
         });
-        setNewHostelData({ name: "", location: "", description: "" });
+        setNewHostelData({ 
+          name: "", 
+          location: "", 
+          description: "",
+          images: []
+        });
       },
       onError: (error: any) => {
         toast({
@@ -100,7 +111,8 @@ const OwnerDashboard = () => {
       price: parseInt(newRoomData.price),
       description: newRoomData.description,
       total_rooms: parseInt(newRoomData.totalRooms),
-      available_rooms: parseInt(newRoomData.availableRooms)
+      available_rooms: parseInt(newRoomData.availableRooms),
+      images: newRoomData.images
     }, {
       onSuccess: () => {
         toast({
@@ -112,7 +124,8 @@ const OwnerDashboard = () => {
           price: "",
           description: "",
           totalRooms: "",
-          availableRooms: ""
+          availableRooms: "",
+          images: []
         });
         setShowAddRoom(false);
       },
@@ -275,6 +288,15 @@ const OwnerDashboard = () => {
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>Hostel Images</Label>
+                    <ImageUpload
+                      images={newHostelData.images}
+                      onImagesChange={(images) => setNewHostelData({...newHostelData, images})}
+                      maxImages={5}
+                    />
+                  </div>
+
                   <div className="flex space-x-4 pt-6">
                     <Button 
                       type="submit" 
@@ -367,6 +389,15 @@ const OwnerDashboard = () => {
                       />
                     </div>
 
+                    <div className="space-y-2">
+                      <Label>Room Images</Label>
+                      <ImageUpload
+                        images={newRoomData.images}
+                        onImagesChange={(images) => setNewRoomData({...newRoomData, images})}
+                        maxImages={3}
+                      />
+                    </div>
+
                     <div className="flex space-x-4 pt-6">
                       <Button 
                         type="submit" 
@@ -385,7 +416,8 @@ const OwnerDashboard = () => {
                             price: "",
                             description: "",
                             totalRooms: "",
-                            availableRooms: ""
+                            availableRooms: "",
+                            images: []
                           });
                         }}
                       >
@@ -402,7 +434,10 @@ const OwnerDashboard = () => {
                   <h3 className="text-xl font-semibold text-gray-600 mb-2">No Hostel Selected</h3>
                   <p className="text-gray-500 mb-6">Please select a hostel from the "My Hostels" tab first</p>
                   <Button 
-                    onClick={() => document.querySelector('[value="hostels"]')?.click()}
+                    onClick={() => {
+                      const hostelsTab = document.querySelector('[value="hostels"]') as HTMLElement;
+                      if (hostelsTab) hostelsTab.click();
+                    }}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Go to My Hostels
