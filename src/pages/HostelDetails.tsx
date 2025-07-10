@@ -115,9 +115,9 @@ const HostelDetails = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="xl:col-span-2 space-y-8">
+          <div className="xl:col-span-2 space-y-6">
             {/* About Section */}
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
@@ -159,11 +159,11 @@ const HostelDetails = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl text-gray-900">Available Rooms</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
+              <CardContent className="p-3">
+                <div className="space-y-4">
                   {hostel.roomTypes.map((room) => (
-                    <div key={room.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-300 bg-white">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div key={room.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 bg-white">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
                         <h3 className="text-xl font-bold text-gray-900 mb-2 sm:mb-0">
                           {ROOM_TYPE_LABELS[room.type]}
                         </h3>
@@ -177,12 +177,12 @@ const HostelDetails = () => {
                       
                       {/* Room Images */}
                       {room.images && room.images.length > 0 && (
-                        <div className="mb-6">
+                        <div className="mb-4">
                           <SimpleImageCarousel images={room.images} />
                         </div>
                       )}
                       
-                      <p className="text-gray-600 mb-4 leading-relaxed">{room.description}</p>
+                      <p className="text-gray-600 mb-3 leading-relaxed">{room.description}</p>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                         <Badge 
@@ -203,7 +203,7 @@ const HostelDetails = () => {
                           size="lg"
                           disabled={room.availableRooms === 0}
                           onClick={() => window.open(generateWhatsAppLink(hostel.name, ROOM_TYPE_LABELS[room.type]), '_blank')}
-                          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-8"
+                          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-6"
                         >
                           Book Now
                         </Button>
