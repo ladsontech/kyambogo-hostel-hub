@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,27 +5,21 @@ import { MapPin, BedDouble } from "lucide-react";
 import { Hostel, ROOM_TYPE_LABELS } from "@/types/hostel";
 import { generateWhatsAppLink } from "@/utils/mockData";
 import { Link } from "react-router-dom";
-
 interface HostelCardProps {
   hostel: Hostel;
 }
-
-export const HostelCard = ({ hostel }: HostelCardProps) => {
+export const HostelCard = ({
+  hostel
+}: HostelCardProps) => {
   const minPrice = Math.min(...hostel.roomTypes.map(rt => rt.price));
   const maxPrice = Math.max(...hostel.roomTypes.map(rt => rt.price));
-  
+
   // Check if all rooms have the same pricing period
   const allSamePeriod = hostel.roomTypes.every(rt => rt.pricePeriod === hostel.roomTypes[0].pricePeriod);
   const periodLabel = allSamePeriod ? hostel.roomTypes[0].pricePeriod : 'mixed';
-
-  return (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden">
+  return <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden">
       <div className="relative">
-        <img
-          src={hostel.images[0]}
-          alt={hostel.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <img src={hostel.images[0]} alt={hostel.name} className="w-full h-48 group-hover:scale-105 transition-transform duration-300 object-contain" />
         <div className="absolute top-3 right-3">
           <Badge className="bg-green-600 hover:bg-green-700 text-white">
             {hostel.roomTypes.length} Room Types
@@ -48,20 +41,15 @@ export const HostelCard = ({ hostel }: HostelCardProps) => {
         <p className="text-gray-600 line-clamp-2">{hostel.description}</p>
         
         <div className="flex flex-wrap gap-2">
-          {hostel.roomTypes.map((roomType) => (
-            <Badge key={roomType.id} variant="outline" className="text-xs">
+          {hostel.roomTypes.map(roomType => <Badge key={roomType.id} variant="outline" className="text-xs">
               {ROOM_TYPE_LABELS[roomType.type]}
-            </Badge>
-          ))}
+            </Badge>)}
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center text-green-600 font-semibold">
             <span>
-              {minPrice === maxPrice 
-                ? `UGX ${minPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`
-                : `UGX ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`
-              }
+              {minPrice === maxPrice ? `UGX ${minPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}` : `UGX ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`}
             </span>
           </div>
         </div>
@@ -73,13 +61,9 @@ export const HostelCard = ({ hostel }: HostelCardProps) => {
             View Details
           </Button>
         </Link>
-        <Button 
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-          onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
-        >
+        <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}>
           Reach Out
         </Button>
       </CardFooter>
-    </Card>
-  );
+    </Card>;
 };
