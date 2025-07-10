@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,65 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Shield, Mail, Lock, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const AdminAuth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, user, isAdmin, loading } = useAdminAuth();
-
-  // Redirect if already authenticated as admin
-  useEffect(() => {
-    if (user && isAdmin && !loading) {
-      navigate("/admin/dashboard");
-    }
-  }, [user, isAdmin, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    try {
-      const { error } = await signIn(email, password);
-      
-      if (error) {
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Admin Login Successful",
-          description: "Welcome to the admin dashboard!",
-        });
-        // Navigation will be handled by the useEffect watching auth state
-      }
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      toast({
+        title: "Admin Login Successful",
+        description: "Welcome to the admin dashboard!",
+      });
+      navigate("/admin/dashboard");
+    }, 1000);
   };
-
-  // Show loading screen while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
@@ -94,10 +55,8 @@ const AdminAuth = () => {
                   <Input
                     id="admin-email"
                     type="email"
-                    placeholder="admin@gmail.com"
+                    placeholder="admin@kyambogohostelconnect.com"
                     className="pl-10"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -112,8 +71,6 @@ const AdminAuth = () => {
                     type="password"
                     placeholder="••••••••"
                     className="pl-10"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>

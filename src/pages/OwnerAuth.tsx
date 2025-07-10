@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ const OwnerAuth = () => {
   const { signIn, signUp, user, loading } = useAuth();
   const createOwnerProfile = useCreateOwnerProfile();
 
-  // Only redirect if user is authenticated and not loading
+  // Redirect if already logged in
   useEffect(() => {
     if (user && !loading) {
       navigate("/owner/dashboard");
@@ -50,7 +51,7 @@ const OwnerAuth = () => {
         title: "Login Successful",
         description: "Welcome back to your dashboard!",
       });
-      // Navigation will be handled by the useEffect watching auth state
+      navigate("/owner/dashboard");
     }
     
     setIsLoading(false);
@@ -80,7 +81,7 @@ const OwnerAuth = () => {
             title: "Account Created Successfully",
             description: "Welcome! You can now manage your hostels.",
           });
-          // Navigation will be handled by the useEffect watching auth state
+          navigate("/owner/dashboard");
         },
         onError: (error: any) => {
           toast({
@@ -95,7 +96,6 @@ const OwnerAuth = () => {
     setIsLoading(false);
   };
 
-  // Show loading screen while checking auth
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">

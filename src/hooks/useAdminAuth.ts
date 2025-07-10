@@ -10,8 +10,30 @@ export const useAdminAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Check if user has admin role
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        setIsAdmin(!!roleData);
+      } else {
+        setIsAdmin(false);
+      }
+      
+      setLoading(false);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
@@ -27,40 +49,8 @@ export const useAdminAuth = () => {
         } else {
           setIsAdmin(false);
         }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        setUser(null);
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setUser(session?.user ?? null);
         
-        if (session?.user) {
-          try {
-            // Check if user has admin role
-            const { data: roleData } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', session.user.id)
-              .eq('role', 'admin')
-              .single();
-            
-            setIsAdmin(!!roleData);
-          } catch (error) {
-            console.error('Role check error:', error);
-            setIsAdmin(false);
-          }
-        } else {
-          setIsAdmin(false);
-        }
+        setLoading(false);
       }
     );
 
@@ -68,18 +58,10 @@ export const useAdminAuth = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    console.log('Attempting to sign in with:', email);
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
-    
-    if (error) {
-      console.error('Sign in error:', error);
-    } else {
-      console.log('Sign in successful:', data.user?.email);
-    }
-    
     return { error };
   };
 
