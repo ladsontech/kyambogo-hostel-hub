@@ -1,80 +1,124 @@
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, BedDouble } from "lucide-react";
-import { Hostel, ROOM_TYPE_LABELS } from "@/types/hostel";
+import { MapPin, Phone, Wifi, Shield, Car, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { generateWhatsAppLink } from "@/utils/mockData";
+import { Hostel } from "@/types/hostel";
 
 interface HostelCardProps {
   hostel: Hostel;
 }
 
-export const HostelCard = ({
-  hostel
-}: HostelCardProps) => {
-  const minPrice = Math.min(...hostel.roomTypes.map(rt => rt.price));
-  const maxPrice = Math.max(...hostel.roomTypes.map(rt => rt.price));
+const HostelCard = ({ hostel }: HostelCardProps) => {
+  // Check if hostel has room types before accessing them
+  const hasRoomTypes = hostel.roomTypes && hostel.roomTypes.length > 0;
+  const lowestPrice = hasRoomTypes 
+    ? Math.min(...hostel.roomTypes.map(room => room.price))
+    : null;
+  const pricePeriod = hasRoomTypes ? hostel.roomTypes[0].pricePeriod : null;
 
-  // Check if all rooms have the same pricing period
-  const allSamePeriod = hostel.roomTypes.every(rt => rt.pricePeriod === hostel.roomTypes[0].pricePeriod);
-  const periodLabel = allSamePeriod ? hostel.roomTypes[0].pricePeriod : 'mixed';
+  const getAmenityIcon = (amenity: string) => {
+    switch (amenity) {
+      case 'wifi':
+        return <Wifi className="h-4 w-4" />;
+      case 'security':
+        return <Shield className="h-4 w-4" />;
+      case 'parking':
+        return <Car className="h-4 w-4" />;
+      case 'common_area':
+        return <Users className="h-4 w-4" />;
+      default:
+        return null;
+    }
+  };
+
+  const whatsappLink = generateWhatsAppLink(hostel.name);
 
   return (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden">
-      <div className="relative">
-        <img 
-          src={hostel.images[0]} 
-          alt={hostel.name} 
-          className="w-full h-48 group-hover:scale-105 transition-transform duration-300 object-contain" 
-        />
-        <div className="absolute top-3 right-3">
-          <Badge className="bg-blue-600 hover:bg-blue-700 text-white">
-            {hostel.roomTypes.length} Room Types
-          </Badge>
-        </div>
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <div className="aspect-video relative overflow-hidden">
+        {hostel.images && hostel.images.length > 0 ? (
+          <img
+            src={hostel.images[0]}
+            alt={hostel.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400">No image available</span>
+          </div>
+        )}
+        {lowestPrice && (
+          <div className="absolute top-4 right-4">
+            <Badge className="bg-green-600 hover:bg-green-700 text-white">
+              From {lowestPrice.toLocaleString()} UGX/{pricePeriod}
+            </Badge>
+          </div>
+        )}
       </div>
       
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-          {hostel.name}
-        </CardTitle>
-        <div className="flex items-center text-gray-600 text-sm">
+        <CardTitle className="text-xl">{hostel.name}</CardTitle>
+        <div className="flex items-center text-gray-600">
           <MapPin className="h-4 w-4 mr-1" />
-          {hostel.location}
+          <span className="text-sm">{hostel.location}</span>
         </div>
       </CardHeader>
-
-      <CardContent className="space-y-3">
-        <p className="text-gray-600 line-clamp-2">{hostel.description}</p>
+      
+      <CardContent className="space-y-4">
+        <p className="text-gray-700 line-clamp-2">{hostel.description}</p>
         
-        <div className="flex flex-wrap gap-2">
-          {hostel.roomTypes.map(roomType => (
-            <Badge key={roomType.id} variant="outline" className="text-xs">
-              {ROOM_TYPE_LABELS[roomType.type]}
-            </Badge>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center text-blue-600 font-semibold">
-            <span>
-              {minPrice === maxPrice 
-                ? `UGX ${minPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}` 
-                : `UGX ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}${periodLabel !== 'mixed' ? `/${periodLabel}` : ''}`
-              }
-            </span>
+        {hasRoomTypes && (
+          <div className="flex flex-wrap gap-2">
+            {hostel.roomTypes.slice(0, 2).map((room) => (
+              <Badge key={room.id} variant="outline" className="text-xs">
+                {room.type.replace('-', ' ')} - {room.price.toLocaleString()} UGX
+              </Badge>
+            ))}
+            {hostel.roomTypes.length > 2 && (
+              <Badge variant="outline" className="text-xs">
+                +{hostel.roomTypes.length - 2} more
+              </Badge>
+            )}
           </div>
+        )}
+
+        {!hasRoomTypes && (
+          <Badge variant="outline" className="text-xs text-gray-500">
+            Room details coming soon
+          </Badge>
+        )}
+        
+        {hostel.amenities && hostel.amenities.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {hostel.amenities.slice(0, 4).map((amenity) => (
+              <div key={amenity} className="flex items-center gap-1 text-xs text-gray-600">
+                {getAmenityIcon(amenity)}
+                <span className="capitalize">{amenity.replace('_', ' ')}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex gap-2 pt-2">
+          <Link to={`/hostel/${hostel.id}`} className="flex-1">
+            <Button variant="outline" className="w-full">
+              View Details
+            </Button>
+          </Link>
+          <Button 
+            className="flex-1 bg-green-600 hover:bg-green-700"
+            onClick={() => window.open(whatsappLink, '_blank')}
+          >
+            <Phone className="h-4 w-4 mr-2" />
+            Contact
+          </Button>
         </div>
       </CardContent>
-
-      <CardFooter className="pt-0">
-        <Link to={`/hostel/${hostel.id}`} className="w-full">
-          <Button variant="outline" className="w-full hover:bg-blue-50 hover:border-blue-300">
-            View Details
-          </Button>
-        </Link>
-      </CardFooter>
     </Card>
   );
 };
+
+export default HostelCard;
