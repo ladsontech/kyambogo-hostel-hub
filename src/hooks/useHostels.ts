@@ -7,6 +7,7 @@ export const useHostels = () => {
   return useQuery({
     queryKey: ['hostels'],
     queryFn: async () => {
+      console.log('Fetching hostels...');
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -16,31 +17,44 @@ export const useHostels = () => {
         `)
         .eq('approved', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching hostels:', error);
+        throw error;
+      }
 
-      return data.map((hostel): Hostel => ({
-        id: hostel.id,
-        name: hostel.name,
-        location: hostel.location,
-        description: hostel.description || '',
-        images: hostel.images || [],
-        roomTypes: hostel.rooms.map(room => ({
-          id: room.id,
-          type: room.type as any,
-          price: room.price,
-          pricePeriod: room.price_period as 'month' | 'semester',
-          description: room.description || '',
-          images: room.images || [],
-          totalRooms: room.total_rooms,
-          availableRooms: room.available_rooms
-        })),
-        ownerId: hostel.owner_id,
-        ownerName: hostel.owner?.name || '',
-        ownerContact: hostel.owner?.phone || '',
-        approved: hostel.approved,
-        createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
-        amenities: (hostel as any).amenities || []
-      }));
+      console.log('Raw hostel data:', data);
+
+      const mappedData = data.map((hostel): Hostel => {
+        const mappedHostel = {
+          id: hostel.id,
+          name: hostel.name,
+          location: hostel.location,
+          description: hostel.description || '',
+          images: hostel.images || [],
+          roomTypes: (hostel.rooms || []).map(room => ({
+            id: room.id,
+            type: room.type as any,
+            price: room.price,
+            pricePeriod: room.price_period as 'month' | 'semester',
+            description: room.description || '',
+            images: room.images || [],
+            totalRooms: room.total_rooms,
+            availableRooms: room.available_rooms
+          })),
+          ownerId: hostel.owner_id,
+          ownerName: hostel.owner?.name || '',
+          ownerContact: hostel.owner?.phone || '',
+          approved: hostel.approved,
+          createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
+          amenities: (hostel as any).amenities || []
+        };
+        
+        console.log('Mapped hostel:', mappedHostel);
+        return mappedHostel;
+      });
+
+      console.log('Final mapped data:', mappedData);
+      return mappedData;
     }
   });
 };
@@ -68,7 +82,7 @@ export const useHostel = (id: string) => {
         location: data.location,
         description: data.description || '',
         images: data.images || [],
-        roomTypes: data.rooms.map(room => ({
+        roomTypes: (data.rooms || []).map(room => ({
           id: room.id,
           type: room.type as any,
           price: room.price,

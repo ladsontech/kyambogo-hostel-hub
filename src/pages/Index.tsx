@@ -18,7 +18,16 @@ const Index = () => {
     error
   } = useHostels();
 
+  console.log('Hostels data in Index:', hostels);
+  console.log('Is loading:', isLoading);
+  console.log('Error:', error);
+
   const filteredHostels = hostels?.filter(hostel => {
+    // Only show hostels that have room types
+    if (!hostel.roomTypes || hostel.roomTypes.length === 0) {
+      return false;
+    }
+
     const matchesSearch = hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          hostel.location.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -48,6 +57,7 @@ const Index = () => {
   };
 
   if (error) {
+    console.error('Error in Index component:', error);
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
         <Header />
