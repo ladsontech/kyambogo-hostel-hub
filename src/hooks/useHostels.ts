@@ -7,6 +7,8 @@ export const useHostels = () => {
   return useQuery({
     queryKey: ['hostels'],
     queryFn: async () => {
+      console.log('Fetching hostels from database...');
+      
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -16,15 +18,25 @@ export const useHostels = () => {
         `)
         .eq('approved', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching hostels:', error);
+        throw error;
+      }
 
-      return data.map((hostel): Hostel => ({
+      console.log('Raw hostels data:', data);
+
+      if (!data) {
+        console.log('No hostels data returned');
+        return [];
+      }
+
+      const mappedHostels = data.map((hostel): Hostel => ({
         id: hostel.id,
         name: hostel.name,
         location: hostel.location,
         description: hostel.description || '',
         images: hostel.images || [],
-        roomTypes: hostel.rooms.map(room => ({
+        roomTypes: hostel.rooms?.map(room => ({
           id: room.id,
           type: room.type as any,
           price: room.price,
@@ -33,7 +45,7 @@ export const useHostels = () => {
           images: room.images || [],
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
-        })),
+        })) || [],
         ownerId: hostel.owner_id,
         ownerName: hostel.owner?.name || '',
         ownerContact: hostel.owner?.phone || '',
@@ -41,7 +53,12 @@ export const useHostels = () => {
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: (hostel as any).amenities || []
       }));
-    }
+
+      console.log('Mapped hostels:', mappedHostels);
+      return mappedHostels;
+    },
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -49,6 +66,8 @@ export const useHostel = (id: string) => {
   return useQuery({
     queryKey: ['hostel', id],
     queryFn: async () => {
+      console.log('Fetching single hostel:', id);
+      
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -58,9 +77,17 @@ export const useHostel = (id: string) => {
         `)
         .eq('id', id)
         .eq('approved', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching hostel:', error);
+        throw error;
+      }
+
+      if (!data) {
+        console.log('No hostel found with id:', id);
+        return null;
+      }
 
       const hostel: Hostel = {
         id: data.id,
@@ -68,7 +95,7 @@ export const useHostel = (id: string) => {
         location: data.location,
         description: data.description || '',
         images: data.images || [],
-        roomTypes: data.rooms.map(room => ({
+        roomTypes: data.rooms?.map(room => ({
           id: room.id,
           type: room.type as any,
           price: room.price,
@@ -77,7 +104,7 @@ export const useHostel = (id: string) => {
           images: room.images || [],
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
-        })),
+        })) || [],
         ownerId: data.owner_id,
         ownerName: data.owner?.name || '',
         ownerContact: data.owner?.phone || '',
@@ -86,8 +113,10 @@ export const useHostel = (id: string) => {
         amenities: (data as any).amenities || []
       };
 
+      console.log('Mapped single hostel:', hostel);
       return hostel;
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: 2,
   });
 };
