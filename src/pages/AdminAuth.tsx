@@ -7,25 +7,45 @@ import { Label } from "@/components/ui/label";
 import { Shield, Mail, Lock, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const AdminAuth = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn } = useAdminAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Admin Login Successful",
+          description: "Welcome to the admin dashboard!",
+        });
+        navigate("/admin/dashboard");
+      }
+    } catch (error) {
       toast({
-        title: "Admin Login Successful",
-        description: "Welcome to the admin dashboard!",
+        title: "Login Failed",
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
-      navigate("/admin/dashboard");
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -55,8 +75,10 @@ const AdminAuth = () => {
                   <Input
                     id="admin-email"
                     type="email"
-                    placeholder="admin@kyambogohostelconnect.com"
+                    placeholder="admin@gmail.com"
                     className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -71,6 +93,8 @@ const AdminAuth = () => {
                     type="password"
                     placeholder="••••••••"
                     className="pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
