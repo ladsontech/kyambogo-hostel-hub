@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble } from "lucide-react";
 import { Hostel, ROOM_TYPE_LABELS } from "@/types/hostel";
-import { generateWhatsAppLink } from "@/utils/mockData";
 import { Link } from "react-router-dom";
 
 interface HostelCardProps {
@@ -69,18 +68,12 @@ export const HostelCard = ({
         </div>
       </CardContent>
 
-      <CardFooter className="pt-0 space-x-2">
-        <Link to={`/hostel/${hostel.id}`} className="flex-1">
+      <CardFooter className="pt-0">
+        <Link to={`/hostel/${hostel.id}`} className="w-full">
           <Button variant="outline" className="w-full hover:bg-blue-50 hover:border-blue-300">
             View Details
           </Button>
         </Link>
-        <Button 
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" 
-          onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
-        >
-          Reach Out
-        </Button>
       </CardFooter>
     </Card>
   );
