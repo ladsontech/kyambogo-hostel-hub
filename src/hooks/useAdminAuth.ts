@@ -6,35 +6,12 @@ import { supabase } from '@/integrations/supabase/client';
 export const useAdminAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(false); // Changed to false for login pages
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Check if user has admin role
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .single();
-        
-        setIsAdmin(!!roleData);
-      } else {
-        setIsAdmin(false);
-      }
-      
-      setLoading(false);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
         
         if (session?.user) {
@@ -50,8 +27,40 @@ export const useAdminAuth = () => {
         } else {
           setIsAdmin(false);
         }
-        
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setUser(null);
+        setIsAdmin(false);
+      } finally {
         setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          try {
+            // Check if user has admin role
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .eq('role', 'admin')
+              .single();
+            
+            setIsAdmin(!!roleData);
+          } catch (error) {
+            console.error('Role check error:', error);
+            setIsAdmin(false);
+          }
+        } else {
+          setIsAdmin(false);
+        }
       }
     );
 

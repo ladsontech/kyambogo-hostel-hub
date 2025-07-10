@@ -42,9 +42,7 @@ const AdminAuth = () => {
           title: "Admin Login Successful",
           description: "Welcome to the admin dashboard!",
         });
-        
-        // Navigate immediately after successful login
-        navigate("/admin/dashboard");
+        // Navigation will be handled by the useEffect watching auth state
       }
     } catch (error) {
       toast({

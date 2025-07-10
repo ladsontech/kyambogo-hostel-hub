@@ -50,7 +50,7 @@ const OwnerAuth = () => {
         title: "Login Successful",
         description: "Welcome back to your dashboard!",
       });
-      navigate("/owner/dashboard");
+      // Navigation will be handled by the useEffect watching auth state
     }
     
     setIsLoading(false);
@@ -80,7 +80,7 @@ const OwnerAuth = () => {
             title: "Account Created Successfully",
             description: "Welcome! You can now manage your hostels.",
           });
-          navigate("/owner/dashboard");
+          // Navigation will be handled by the useEffect watching auth state
         },
         onError: (error: any) => {
           toast({
