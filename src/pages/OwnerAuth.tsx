@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,7 @@ const OwnerAuth = () => {
   const { signIn, signUp, user, loading } = useAuth();
   const createOwnerProfile = useCreateOwnerProfile();
 
-  // Only redirect if user is authenticated
+  // Only redirect if user is authenticated and not loading
   useEffect(() => {
     if (user && !loading) {
       navigate("/owner/dashboard");
@@ -96,7 +95,7 @@ const OwnerAuth = () => {
     setIsLoading(false);
   };
 
-  // Show loading only when actually processing auth
+  // Show loading only when actually processing auth and user exists
   if (loading && user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">

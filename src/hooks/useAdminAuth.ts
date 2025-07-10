@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const useAdminAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Changed to false for login pages
 
   useEffect(() => {
     const checkAuth = async () => {

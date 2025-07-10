@@ -37,10 +37,7 @@ const AdminAuth = () => {
         });
         
         // Navigate immediately after successful login
-        // The useAdminAuth hook will handle role checking
-        setTimeout(() => {
-          navigate("/admin/dashboard");
-        }, 100);
+        navigate("/admin/dashboard");
       }
     } catch (error) {
       toast({
