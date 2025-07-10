@@ -72,15 +72,76 @@ const OwnerDashboard = () => {
       });
       return;
     }
+
+    // Validate required fields
+    if (!newRoomData.type) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a room type.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newRoomData.price || !newRoomData.totalRooms || !newRoomData.availableRooms) {
+      toast({
+        title: "Validation Error", 
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const totalRooms = parseInt(newRoomData.totalRooms);
+    const availableRooms = parseInt(newRoomData.availableRooms);
+    const price = parseInt(newRoomData.price);
+
+    // Validate numbers
+    if (isNaN(totalRooms) || isNaN(availableRooms) || isNaN(price)) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter valid numbers for price and room counts.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate room constraints
+    if (totalRooms < 1) {
+      toast({
+        title: "Validation Error",
+        description: "Total rooms must be at least 1.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (availableRooms < 0) {
+      toast({
+        title: "Validation Error",
+        description: "Available rooms cannot be negative.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (availableRooms > totalRooms) {
+      toast({
+        title: "Validation Error",
+        description: "Available rooms cannot exceed total rooms.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     createRoom.mutate({
       hostel_id: hostel.id,
       type: newRoomData.type,
-      price: parseInt(newRoomData.price),
+      price: price,
       price_period: newRoomData.pricePeriod,
       description: newRoomData.description,
-      total_rooms: parseInt(newRoomData.totalRooms),
-      available_rooms: parseInt(newRoomData.availableRooms),
+      total_rooms: totalRooms,
+      available_rooms: availableRooms,
       images: newRoomData.images
     }, {
       onSuccess: () => {
@@ -464,10 +525,15 @@ const OwnerDashboard = () => {
                         type="number" 
                         placeholder="8" 
                         min="0" 
+                        max={newRoomData.totalRooms || undefined}
                         value={newRoomData.availableRooms}
                         onChange={(e) => setNewRoomData({...newRoomData, availableRooms: e.target.value})}
                         required 
                       />
+                      {newRoomData.totalRooms && newRoomData.availableRooms && 
+                       parseInt(newRoomData.availableRooms) > parseInt(newRoomData.totalRooms) && (
+                        <p className="text-sm text-red-500">Available rooms cannot exceed total rooms</p>
+                      )}
                     </div>
                   </div>
 
