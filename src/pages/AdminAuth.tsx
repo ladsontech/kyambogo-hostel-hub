@@ -35,7 +35,12 @@ const AdminAuth = () => {
           title: "Admin Login Successful",
           description: "Welcome to the admin dashboard!",
         });
-        navigate("/admin/dashboard");
+        
+        // Navigate immediately after successful login
+        // The useAdminAuth hook will handle role checking
+        setTimeout(() => {
+          navigate("/admin/dashboard");
+        }, 100);
       }
     } catch (error) {
       toast({
