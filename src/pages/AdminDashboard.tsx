@@ -1,5 +1,5 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,14 +8,32 @@ import { Input } from "@/components/ui/input";
 import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useApproveHostel, useRejectHostel } from "@/hooks/useAdminData";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import CarouselManager from "@/components/CarouselManager";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: hostels, isLoading } = useAllHostels();
+  const { user, isAdmin, loading: authLoading } = useAdminAuth();
+  const { data: hostels, isLoading: hostelsLoading } = useAllHostels();
   const approveHostel = useApproveHostel();
   const rejectHostel = useRejectHostel();
+
+  // Redirect if not authenticated or not admin
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="flex items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Checking authentication...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
 
   const pendingHostels = hostels?.filter(h => !h.approved) || [];
   const approvedHostels = hostels?.filter(h => h.approved) || [];
@@ -52,7 +70,7 @@ const AdminDashboard = () => {
     room.ownerName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (isLoading) {
+  if (hostelsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="flex items-center">
@@ -88,18 +106,17 @@ const AdminDashboard = () => {
           
           {/* Desktop Actions */}
           <div className="hidden sm:flex items-center space-x-4 flex-shrink-0">
+            <span className="text-sm text-gray-600">Welcome, {user.email}</span>
             <Link to="/">
               <Button variant="outline" size="sm">
                 <Eye className="h-4 w-4 mr-2" />
                 View Site
               </Button>
             </Link>
-            <Link to="/admin">
-              <Button variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </Link>
+            <Button variant="outline" size="sm" onClick={() => useAdminAuth().signOut()}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
         
@@ -107,18 +124,25 @@ const AdminDashboard = () => {
         {isMobileMenuOpen && (
           <div className="sm:hidden border-t bg-white">
             <div className="container mx-auto px-2 sm:px-4 py-4 space-y-3">
+              <div className="text-sm text-gray-600 mb-2">Welcome, {user.email}</div>
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Eye className="h-4 w-4 mr-2" />
                   View Site
                 </Button>
               </Link>
-              <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  useAdminAuth().signOut();
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         )}
@@ -146,7 +170,7 @@ const AdminDashboard = () => {
               <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{pendingHostels.length}</div>
+              <div className="text-lg sm:text-2xl font-bold text-orange-600">{pendingHostels.length}</div>
               <p className="text-xs text-muted-foreground">
                 Awaiting approval
               </p>
@@ -184,7 +208,7 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="approved" className="space-y-4 sm:space-y-6">
+        <Tabs defaultValue="pending" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-4 max-w-full sm:max-w-lg text-xs sm:text-sm">
             <TabsTrigger value="approved" className="px-1 sm:px-4">Hostels</TabsTrigger>
             <TabsTrigger value="pending" className="relative px-1 sm:px-4">
@@ -302,7 +326,14 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4 sm:space-y-6">
-            <h2 className="text-xl sm:text-3xl font-bold text-gray-800">Pending Review</h2>
+            <h2 className="text-xl sm:text-3xl font-bold text-gray-800">
+              Pending Review 
+              {pendingHostels.length > 0 && (
+                <Badge className="ml-3 bg-orange-500 text-white">
+                  {pendingHostels.length} awaiting
+                </Badge>
+              )}
+            </h2>
 
             {pendingHostels.length > 0 ? (
               <div className="space-y-4">
