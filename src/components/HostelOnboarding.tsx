@@ -47,8 +47,39 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!hostelData.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Hostel name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!hostelData.location.trim()) {
+      toast({
+        title: "Validation Error", 
+        description: "Location is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!hostelData.description.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Description is required", 
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('Submitting hostel data:', hostelData);
+    
     createOrUpdateHostel.mutate(hostelData, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log('Hostel saved successfully:', data);
         toast({
           title: existingHostel ? "Hostel Updated" : "Hostel Created",
           description: existingHostel 
@@ -58,9 +89,10 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
         onComplete();
       },
       onError: (error: any) => {
+        console.error('Error saving hostel:', error);
         toast({
           title: "Failed to Save Hostel",
-          description: error.message,
+          description: error.message || "An unexpected error occurred. Please try again.",
           variant: "destructive"
         });
       }

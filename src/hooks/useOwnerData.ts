@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,18 +18,18 @@ export const useOwnerProfile = () => {
         .from('owners')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!supabase.auth.getUser()
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1
   });
 };
 
 export const useCreateOwnerProfile = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (profileData: {
@@ -38,6 +39,17 @@ export const useCreateOwnerProfile = () => {
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+
+      // Check if profile already exists
+      const { data: existing } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        throw new Error('Owner profile already exists');
+      }
 
       const { data, error } = await supabase
         .from('owners')
@@ -66,21 +78,32 @@ export const useOwnerHostel = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // First get the owner profile
+      // First get the owner profile with better error handling
       const { data: owner, error: ownerError } = await supabase
         .from('owners')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (ownerError) throw ownerError;
+      if (!owner) return null;
 
-      // Then get the hostel for this owner
+      // Then get the hostel for this owner with optimized query
       const { data, error } = await supabase
         .from('hostels')
         .select(`
           *,
-          rooms(*)
+          rooms (
+            id,
+            type,
+            price,
+            price_period,
+            description,
+            images,
+            total_rooms,
+            available_rooms,
+            created_at
+          )
         `)
         .eq('owner_id', owner.id)
         .maybeSingle();
@@ -88,7 +111,9 @@ export const useOwnerHostel = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!supabase.auth.getUser()
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 1,
+    enabled: true
   });
 };
 
@@ -107,21 +132,24 @@ export const useCreateOrUpdateHostel = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get owner profile
+      // Get owner profile with better error handling
       const { data: owner, error: ownerError } = await supabase
         .from('owners')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (ownerError) throw ownerError;
+      if (!owner) throw new Error('Owner profile not found');
 
-      // Check if hostel already exists
-      const { data: existingHostel } = await supabase
+      // Check if hostel already exists for this owner
+      const { data: existingHostel, error: checkError } = await supabase
         .from('hostels')
         .select('id')
         .eq('owner_id', owner.id)
         .maybeSingle();
+
+      if (checkError) throw checkError;
 
       if (existingHostel) {
         // Update existing hostel
@@ -162,13 +190,20 @@ export const useCreateOrUpdateHostel = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-hostel'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
+    },
+    onError: (error: any) => {
+      console.error('Error saving hostel:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save hostel",
+        variant: "destructive"
+      });
     }
   });
 };
 
 export const useCreateRoom = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (roomData: {
@@ -181,6 +216,11 @@ export const useCreateRoom = () => {
       total_rooms: number;
       available_rooms: number;
     }) => {
+      // Validate data before sending
+      if (roomData.available_rooms > roomData.total_rooms) {
+        throw new Error('Available rooms cannot exceed total rooms');
+      }
+
       const { data, error } = await supabase
         .from('rooms')
         .insert(roomData)
@@ -214,6 +254,13 @@ export const useUpdateRoom = () => {
         available_rooms?: number;
       };
     }) => {
+      // Validate if both room counts are provided
+      if (roomData.available_rooms !== undefined && roomData.total_rooms !== undefined) {
+        if (roomData.available_rooms > roomData.total_rooms) {
+          throw new Error('Available rooms cannot exceed total rooms');
+        }
+      }
+
       const { data, error } = await supabase
         .from('rooms')
         .update(roomData)
@@ -230,6 +277,13 @@ export const useUpdateRoom = () => {
       toast({
         title: "Room Updated",
         description: "The room has been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update room",
+        variant: "destructive"
       });
     }
   });
@@ -254,6 +308,13 @@ export const useDeleteRoom = () => {
       toast({
         title: "Room Deleted",
         description: "The room has been deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete room",
+        variant: "destructive"
       });
     }
   });
