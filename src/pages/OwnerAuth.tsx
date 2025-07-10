@@ -95,8 +95,8 @@ const OwnerAuth = () => {
     setIsLoading(false);
   };
 
-  // Show loading only when actually processing auth and user exists
-  if (loading && user) {
+  // Show loading screen while checking auth
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
