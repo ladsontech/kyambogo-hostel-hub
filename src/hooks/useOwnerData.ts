@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -169,7 +168,7 @@ export const useCreateOrUpdateHostel = () => {
         if (error) throw error;
         return data;
       } else {
-        // Create new hostel
+        // Create new hostel with approved set to true by default
         const { data, error } = await supabase
           .from('hostels')
           .insert({
@@ -178,7 +177,8 @@ export const useCreateOrUpdateHostel = () => {
             location: hostelData.location,
             description: hostelData.description,
             images: hostelData.images || [],
-            amenities: hostelData.amenities || []
+            amenities: hostelData.amenities || [],
+            approved: true
           })
           .select()
           .single();
