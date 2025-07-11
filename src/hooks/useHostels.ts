@@ -48,7 +48,7 @@ export const useHostels = () => {
         ownerId: hostel.owner_id,
         ownerName: hostel.owner?.name || '',
         ownerContact: hostel.owner?.phone || '',
-        approved: true, // All hostels are now considered approved
+        approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: (hostel as any).amenities || []
       }));
@@ -106,7 +106,7 @@ export const useHostel = (id: string) => {
         ownerId: data.owner_id,
         ownerName: data.owner?.name || '',
         ownerContact: data.owner?.phone || '',
-        approved: true, // All hostels are now considered approved
+        approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
         amenities: (data as any).amenities || []
       };
