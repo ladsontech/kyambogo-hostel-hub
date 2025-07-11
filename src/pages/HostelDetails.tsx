@@ -1,3 +1,4 @@
+
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Star, Wifi, Car, Shield, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,15 @@ import { generateWhatsAppLink } from "@/utils/mockData";
 import { useHostel } from "@/hooks/useHostels";
 import { Loader2 } from "lucide-react";
 import SimpleImageCarousel from "@/components/SimpleImageCarousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+
 const HostelDetails = () => {
   const {
     id
@@ -20,6 +30,13 @@ const HostelDetails = () => {
     error
   } = useHostel(id || '');
   const callPhoneNumber = "256789572007";
+
+  // Auto-play plugin for the main carousel
+  const autoplay = Autoplay({
+    delay: 4000,
+    stopOnInteraction: true,
+  });
+
   if (isLoading) {
     return <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
         <div className="flex items-center space-x-3">
@@ -87,15 +104,33 @@ const HostelDetails = () => {
             </div>
           </div>
 
-          {/* Enhanced Images Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-4 rounded-2xl overflow-hidden shadow-2xl">
-            {hostel.images.map((image, index) => <div key={index} className={`
-                  relative overflow-hidden group cursor-pointer
-                  ${index === 0 ? 'md:col-span-2 md:row-span-2 h-64 md:h-full' : 'h-32 md:h-48'}
-                `}>
-                <img src={image} alt={`${hostel.name} view ${index + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>)}
+          {/* Enhanced Images Carousel */}
+          <div className="rounded-2xl overflow-hidden shadow-2xl">
+            <Carousel
+              className="w-full"
+              plugins={[autoplay]}
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent>
+                {hostel.images.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="relative h-64 md:h-80 lg:h-96">
+                      <img 
+                        src={image} 
+                        alt={`${hostel.name} view ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/10" />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
+            </Carousel>
           </div>
         </div>
 
