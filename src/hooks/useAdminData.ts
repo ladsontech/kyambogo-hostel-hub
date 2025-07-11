@@ -22,34 +22,7 @@ export const useAllHostels = () => {
   });
 };
 
-export const useApproveHostel = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (hostelId: string) => {
-      const { data, error } = await supabase
-        .from('hostels')
-        .update({ approved: true })
-        .eq('id', hostelId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
-      queryClient.invalidateQueries({ queryKey: ['hostels'] });
-      toast({
-        title: "Hostel Approved",
-        description: "The hostel is now visible to students.",
-      });
-    }
-  });
-};
-
-export const useRejectHostel = () => {
+export const useDeleteHostel = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -66,7 +39,7 @@ export const useRejectHostel = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
       toast({
-        title: "Hostel Rejected",
+        title: "Hostel Deleted",
         description: "The hostel has been removed from the system.",
         variant: "destructive"
       });

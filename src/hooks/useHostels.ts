@@ -15,8 +15,7 @@ export const useHostels = () => {
           *,
           owner:owners(*),
           rooms(*)
-        `)
-        .eq('approved', true);
+        `);
 
       if (error) {
         console.error('Error fetching hostels:', error);
@@ -49,7 +48,7 @@ export const useHostels = () => {
         ownerId: hostel.owner_id,
         ownerName: hostel.owner?.name || '',
         ownerContact: hostel.owner?.phone || '',
-        approved: hostel.approved,
+        approved: true, // All hostels are now considered approved
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: (hostel as any).amenities || []
       }));
@@ -76,7 +75,6 @@ export const useHostel = (id: string) => {
           rooms(*)
         `)
         .eq('id', id)
-        .eq('approved', true)
         .maybeSingle();
 
       if (error) {
@@ -108,7 +106,7 @@ export const useHostel = (id: string) => {
         ownerId: data.owner_id,
         ownerName: data.owner?.name || '',
         ownerContact: data.owner?.phone || '',
-        approved: data.approved,
+        approved: true, // All hostels are now considered approved
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
         amenities: (data as any).amenities || []
       };

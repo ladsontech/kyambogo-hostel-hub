@@ -1,27 +1,22 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, MessageSquare, Phone, Eye, CheckCircle, XCircle, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed } from "lucide-react";
+import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAllHostels, useApproveHostel, useRejectHostel } from "@/hooks/useAdminData";
+import { useAllHostels, useDeleteHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: hostels, isLoading } = useAllHostels();
-  const approveHostel = useApproveHostel();
-  const rejectHostel = useRejectHostel();
+  const deleteHostel = useDeleteHostel();
 
-  const pendingHostels = hostels?.filter(h => !h.approved) || [];
-  const approvedHostels = hostels?.filter(h => h.approved) || [];
-  
-  // Get all rooms from approved hostels for room management
-  const allRooms = approvedHostels.flatMap(hostel => 
+  // Get all rooms from hostels for room management
+  const allRooms = (hostels || []).flatMap(hostel => 
     (hostel.rooms || []).map(room => ({
       ...room,
       hostelName: hostel.name,
@@ -31,15 +26,13 @@ const AdminDashboard = () => {
     }))
   );
 
-  const handleApprove = (hostelId: string) => {
-    approveHostel.mutate(hostelId);
+  const handleDelete = (hostelId: string) => {
+    if (confirm('Are you sure you want to delete this hostel? This action cannot be undone.')) {
+      deleteHostel.mutate(hostelId);
+    }
   };
 
-  const handleReject = (hostelId: string) => {
-    rejectHostel.mutate(hostelId);
-  };
-
-  const filteredHostels = approvedHostels.filter(hostel =>
+  const filteredHostels = (hostels || []).filter(hostel =>
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -126,7 +119,7 @@ const AdminDashboard = () => {
 
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6 mb-4 sm:mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 mb-4 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium">Total Hostels</CardTitle>
@@ -135,20 +128,7 @@ const AdminDashboard = () => {
             <CardContent className="pt-0">
               <div className="text-lg sm:text-2xl font-bold">{hostels?.length || 0}</div>
               <p className="text-xs text-muted-foreground">
-                {approvedHostels.length} approved
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Pending Review</CardTitle>
-              <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{pendingHostels.length}</div>
-              <p className="text-xs text-muted-foreground">
-                Awaiting approval
+                All registered hostels
               </p>
             </CardContent>
           </Card>
@@ -178,23 +158,15 @@ const AdminDashboard = () => {
                 {allRooms.length}
               </div>
               <p className="text-xs text-muted-foreground">
-                From approved hostels
+                All available rooms
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="approved" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-full sm:max-w-lg text-xs sm:text-sm">
-            <TabsTrigger value="approved" className="px-1 sm:px-4">Hostels</TabsTrigger>
-            <TabsTrigger value="pending" className="relative px-1 sm:px-4">
-              Pending
-              {pendingHostels.length > 0 && (
-                <Badge className="ml-1 sm:ml-2 bg-red-500 text-white text-xs px-1 sm:px-2 py-0 rounded-full">
-                  {pendingHostels.length}
-                </Badge>
-              )}
-            </TabsTrigger>
+        <Tabs defaultValue="hostels" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-full sm:max-w-lg text-xs sm:text-sm">
+            <TabsTrigger value="hostels" className="px-1 sm:px-4">Hostels</TabsTrigger>
             <TabsTrigger value="rooms" className="px-1 sm:px-4">
               <Bed className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Rooms</span>
@@ -205,9 +177,9 @@ const AdminDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="approved" className="space-y-4 sm:space-y-6">
+          <TabsContent value="hostels" className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-xl sm:text-3xl font-bold text-gray-800">Approved Hostels</h2>
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-800">All Hostels</h2>
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -227,7 +199,7 @@ const AdminDashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                           <h3 className="text-base sm:text-xl font-semibold text-gray-800 truncate">{hostel.name}</h3>
-                          <Badge className="bg-green-100 text-green-800 w-fit">Approved</Badge>
+                          <Badge className="bg-green-100 text-green-800 w-fit">Active</Badge>
                         </div>
                         <p className="text-gray-600 mb-3 text-sm sm:text-base">{hostel.location}</p>
                         <p className="text-gray-700 mb-4 line-clamp-2 text-sm sm:text-base">{hostel.description}</p>
@@ -285,6 +257,16 @@ const AdminDashboard = () => {
                           <Phone className="h-4 w-4 mr-1" />
                           Call
                         </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="flex-1 lg:flex-none text-red-600 hover:text-red-700 hover:border-red-300"
+                          onClick={() => handleDelete(hostel.id)}
+                          disabled={deleteHostel.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -297,76 +279,6 @@ const AdminDashboard = () => {
                 <Building2 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No hostels found</h3>
                 <p className="text-gray-500">Try adjusting your search criteria</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="pending" className="space-y-4 sm:space-y-6">
-            <h2 className="text-xl sm:text-3xl font-bold text-gray-800">Pending Review</h2>
-
-            {pendingHostels.length > 0 ? (
-              <div className="space-y-4">
-                {pendingHostels.map((hostel) => (
-                  <Card key={hostel.id} className="border-orange-200 bg-orange-50">
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <h3 className="text-base sm:text-xl font-semibold text-gray-800 truncate">{hostel.name}</h3>
-                            <Badge className="bg-orange-100 text-orange-800 w-fit">Pending</Badge>
-                          </div>
-                          <p className="text-gray-600 mb-3 text-sm sm:text-base">{hostel.location}</p>
-                          <p className="text-gray-700 mb-4 text-sm sm:text-base">{hostel.description}</p>
-                          
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h4 className="font-medium text-gray-800 mb-2 text-sm sm:text-base">Owner Details</h4>
-                              <div className="text-sm text-gray-600">
-                                <p className="truncate">{hostel.owner?.name}</p>
-                                <p className="truncate">{hostel.owner?.phone}</p>
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-800 mb-2 text-sm sm:text-base">Room Types</h4>
-                              <div className="text-sm text-gray-600">
-                                <p>{hostel.rooms?.length || 0} types available</p>
-                                <p>Submitted {new Date(hostel.created_at).toLocaleDateString()}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-row lg:flex-col gap-2 lg:ml-4 flex-shrink-0">
-                          <Button 
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 flex-1 lg:flex-none"
-                            onClick={() => handleApprove(hostel.id)}
-                            disabled={approveHostel.isPending}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="text-red-600 hover:text-red-700 hover:border-red-300 flex-1 lg:flex-none"
-                            onClick={() => handleReject(hostel.id)}
-                            disabled={rejectHostel.isPending}
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 sm:py-16">
-                <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-green-400 mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">All caught up!</h3>
-                <p className="text-gray-500">No hostels pending review at the moment</p>
               </div>
             )}
           </TabsContent>
