@@ -1,24 +1,24 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus } from "lucide-react";
+import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useDeleteHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
 import AdminHostelForm from "@/components/AdminHostelForm";
+import EditHostelDialog from "@/components/EditHostelDialog";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showHostelForm, setShowHostelForm] = useState(false);
+  const [editingHostel, setEditingHostel] = useState<any>(null);
   const { data: hostels, isLoading } = useAllHostels();
   const deleteHostel = useDeleteHostel();
 
-  // Get all rooms from hostels for room management
   const allRooms = (hostels || []).flatMap((hostel: any) => 
     (hostel.rooms || []).map((room: any) => ({
       ...room,
@@ -61,7 +61,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
@@ -74,7 +73,6 @@ const AdminDashboard = () => {
             </div>
           </div>
           
-          {/* Mobile Menu Button */}
           <button
             className="sm:hidden p-2 text-gray-600 hover:text-blue-600 flex-shrink-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -82,7 +80,6 @@ const AdminDashboard = () => {
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           
-          {/* Desktop Actions */}
           <div className="hidden sm:flex items-center space-x-4 flex-shrink-0">
             <Link to="/">
               <Button variant="outline" size="sm">
@@ -99,7 +96,6 @@ const AdminDashboard = () => {
           </div>
         </div>
         
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="sm:hidden border-t bg-white">
             <div className="container mx-auto px-2 sm:px-4 py-4 space-y-3">
@@ -121,7 +117,6 @@ const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 mb-4 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -273,6 +268,15 @@ const AdminDashboard = () => {
                           variant="outline" 
                           size="sm"
                           className="flex-1 lg:flex-none"
+                          onClick={() => setEditingHostel(hostel)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="flex-1 lg:flex-none"
                           onClick={() => window.open(`tel:${hostel.contact_phone}`, '_blank')}
                         >
                           <Phone className="h-4 w-4 mr-1" />
@@ -403,6 +407,12 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <EditHostelDialog
+        open={!!editingHostel}
+        onOpenChange={(open) => !open && setEditingHostel(null)}
+        hostel={editingHostel}
+      />
     </div>
   );
 };
