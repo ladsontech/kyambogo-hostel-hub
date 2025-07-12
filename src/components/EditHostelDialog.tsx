@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,6 @@ interface EditHostelDialogProps {
 }
 
 const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps) => {
-  const [editingRoom, setEditingRoom] = useState<any>(null);
   const updateHostel = useUpdateHostel();
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
@@ -107,233 +107,211 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
   if (!hostel) return null;
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Hostel: {hostel.name}</DialogTitle>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Hostel: {hostel.name}</DialogTitle>
+        </DialogHeader>
 
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="details">Hostel Details</TabsTrigger>
-              <TabsTrigger value="rooms">Rooms ({hostel.rooms?.length || 0})</TabsTrigger>
-              <TabsTrigger value="images">Images</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="details">Hostel Details</TabsTrigger>
+            <TabsTrigger value="rooms">Rooms ({hostel.rooms?.length || 0})</TabsTrigger>
+            <TabsTrigger value="images">Images</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="details" className="space-y-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Location</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
+          <TabsContent value="details" className="space-y-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="description"
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Textarea {...field} rows={3} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="contact_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                    <FormField
-                      control={form.control}
-                      name="contact_phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={3} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <FormField
-                      control={form.control}
-                      name="contact_email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contact Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="contact_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={updateHostel.isPending}>
-                      {updateHostel.isPending ? "Updating..." : "Update Hostel"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </TabsContent>
+                  <FormField
+                    control={form.control}
+                    name="contact_phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <TabsContent value="rooms" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Room Management</h3>
-                <Button 
-                  onClick={() => setEditingRoom({ hostel_id: hostel.id, isNew: true })}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Room
-                </Button>
-              </div>
+                  <FormField
+                    control={form.control}
+                    name="contact_email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <div className="grid gap-4">
-                {hostel.rooms?.map((room: any) => (
-                  <Card key={room.id}>
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-base capitalize">
-                            {room.type.replace('-', ' ')} Room
-                          </CardTitle>
-                          <div className="flex gap-2 mt-2">
-                            <Badge className="bg-blue-100 text-blue-800">
-                              {room.price.toLocaleString()} UGX / {room.price_period}
-                            </Badge>
-                            <Badge variant="outline">
-                              {room.available_rooms}/{room.total_rooms} available
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingRoom(room)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteRoom(room.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={updateHostel.isPending}>
+                    {updateHostel.isPending ? "Updating..." : "Update Hostel"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+
+          <TabsContent value="rooms" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Room Management</h3>
+            </div>
+
+            <div className="grid gap-4">
+              {hostel.rooms?.map((room: any) => (
+                <Card key={room.id}>
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-base capitalize">
+                          {room.type.replace('-', ' ')} Room
+                        </CardTitle>
+                        <div className="flex gap-2 mt-2">
+                          <Badge className="bg-blue-100 text-blue-800">
+                            {room.price.toLocaleString()} UGX / {room.price_period}
+                          </Badge>
+                          <Badge variant="outline">
+                            {room.available_rooms}/{room.total_rooms} available
+                          </Badge>
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      {room.description && (
-                        <p className="text-sm text-gray-600 mb-3">{room.description}</p>
-                      )}
-                      {room.images && room.images.length > 0 && (
-                        <div className="mt-3">
-                          <SimpleImageCarousel images={room.images} />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {(!hostel.rooms || hostel.rooms.length === 0) && (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No rooms added yet.</p>
-                    <p className="text-sm">Click "Add Room" to get started.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="images" className="space-y-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Hostel Images</h3>
-                {hostel.images && hostel.images.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {hostel.images.map((image: string, index: number) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={image}
-                          alt={`Hostel image ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-lg shadow-md"
-                        />
+                      <div className="flex gap-2">
+                        <EditRoomDialog room={room} />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteRoom(room.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <p>No images uploaded yet.</p>
-                    <p className="text-sm">Images can be managed through the main hostel form.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {room.description && (
+                      <p className="text-sm text-gray-600 mb-3">{room.description}</p>
+                    )}
+                    {room.images && room.images.length > 0 && (
+                      <div className="mt-3">
+                        <SimpleImageCarousel images={room.images} />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
 
-      <EditRoomDialog
-        open={!!editingRoom}
-        onOpenChange={(open) => !open && setEditingRoom(null)}
-        room={editingRoom}
-        hostelId={hostel.id}
-      />
-    </>
+              {(!hostel.rooms || hostel.rooms.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No rooms added yet.</p>
+                  <p className="text-sm">Click "Add Room" to get started.</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="images" className="space-y-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Hostel Images</h3>
+              {hostel.images && hostel.images.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {hostel.images.map((image: string, index: number) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={image}
+                        alt={`Hostel image ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg shadow-md"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                  <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p>No images uploaded yet.</p>
+                  <p className="text-sm">Images can be managed through the main hostel form.</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 };
 
