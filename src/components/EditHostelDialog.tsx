@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -53,15 +53,30 @@ export default function EditHostelDialog({
   const form = useForm<HostelFormData>({
     resolver: zodResolver(hostelSchema),
     defaultValues: {
-      name: hostel?.name || "",
-      location: hostel?.location || "",
-      description: hostel?.description || "",
-      contact_name: hostel?.contact_name || "",
-      contact_phone: hostel?.contact_phone || "",
-      contact_email: hostel?.contact_email || "",
-      amenities: hostel?.amenities || [],
+      name: "",
+      location: "",
+      description: "",
+      contact_name: "",
+      contact_phone: "",
+      contact_email: "",
+      amenities: [],
     },
   });
+
+  // Reset form values when hostel data changes or dialog opens
+  useEffect(() => {
+    if (hostel && open) {
+      form.reset({
+        name: hostel.name || "",
+        location: hostel.location || "",
+        description: hostel.description || "",
+        contact_name: hostel.contact_name || "",
+        contact_phone: hostel.contact_phone || "",
+        contact_email: hostel.contact_email || "",
+        amenities: hostel.amenities || [],
+      });
+    }
+  }, [hostel, open, form]);
 
   const onSubmit = async (data: HostelFormData) => {
     try {
