@@ -66,8 +66,14 @@ export default function EditHostelDialog({
   const onSubmit = async (data: HostelFormData) => {
     try {
       await updateHostel.mutateAsync({
-        id: hostel.id,
-        ...data,
+        id: hostel.id as string,
+        name: data.name,
+        location: data.location,
+        description: data.description,
+        contact_name: data.contact_name,
+        contact_phone: data.contact_phone,
+        contact_email: data.contact_email,
+        amenities: data.amenities,
       });
       onOpenChange(false);
       form.reset();
