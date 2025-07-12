@@ -28,13 +28,13 @@ export const useHostels = () => {
         return [];
       }
 
-      const mappedHostels = data.map((hostel): Hostel => ({
+      const mappedHostels = data.map((hostel: any): Hostel => ({
         id: hostel.id,
         name: hostel.name,
         location: hostel.location,
         description: hostel.description || '',
         images: hostel.images || [],
-        roomTypes: hostel.rooms?.map(room => ({
+        roomTypes: hostel.rooms?.map((room: any) => ({
           id: room.id,
           type: room.type as any,
           price: room.price,
@@ -91,7 +91,7 @@ export const useHostel = (id: string) => {
         location: data.location,
         description: data.description || '',
         images: data.images || [],
-        roomTypes: data.rooms?.map(room => ({
+        roomTypes: data.rooms?.map((room: any) => ({
           id: room.id,
           type: room.type as any,
           price: room.price,
@@ -102,8 +102,8 @@ export const useHostel = (id: string) => {
           availableRooms: room.available_rooms
         })) || [],
         ownerId: '', // No longer used
-        ownerName: data.contact_name || '',
-        ownerContact: data.contact_phone || '',
+        ownerName: (data as any).contact_name || '',
+        ownerContact: (data as any).contact_phone || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
         amenities: data.amenities || []

@@ -36,9 +36,15 @@ export const useCreateHostel = () => {
       images?: string[];
       amenities?: string[];
     }) => {
+      // Cast the data to match the expected type structure
+      const insertData = {
+        ...hostelData,
+        owner_id: 'admin-managed' // Placeholder since the field still exists in types
+      } as any;
+
       const { data, error } = await supabase
         .from('hostels')
-        .insert([hostelData])
+        .insert([insertData])
         .select()
         .single();
 
@@ -47,6 +53,7 @@ export const useCreateHostel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Hostel Created",
         description: "The hostel has been added successfully.",
@@ -73,7 +80,7 @@ export const useUpdateHostel = () => {
     }) => {
       const { data, error } = await supabase
         .from('hostels')
-        .update(hostelData)
+        .update(hostelData as any)
         .eq('id', id)
         .select()
         .single();
@@ -83,6 +90,7 @@ export const useUpdateHostel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Hostel Updated",
         description: "The hostel has been updated successfully.",
@@ -107,6 +115,7 @@ export const useDeleteHostel = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Hostel Deleted",
         description: "The hostel has been removed from the system.",
@@ -123,7 +132,7 @@ export const useCreateRoom = () => {
   return useMutation({
     mutationFn: async (roomData: {
       hostel_id: string;
-      type: string;
+      type: 'single-self-contained' | 'double-self-contained' | 'single-shared' | 'double-shared';
       price: number;
       price_period: string;
       description?: string;
@@ -142,6 +151,7 @@ export const useCreateRoom = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Room Added",
         description: "The room has been added successfully.",
@@ -157,7 +167,7 @@ export const useUpdateRoom = () => {
   return useMutation({
     mutationFn: async ({ id, ...roomData }: {
       id: string;
-      type: string;
+      type: 'single-self-contained' | 'double-self-contained' | 'single-shared' | 'double-shared';
       price: number;
       price_period: string;
       description?: string;
@@ -177,6 +187,7 @@ export const useUpdateRoom = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Room Updated",
         description: "The room has been updated successfully.",
@@ -201,6 +212,7 @@ export const useDeleteRoom = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Room Deleted",
         description: "The room has been removed.",

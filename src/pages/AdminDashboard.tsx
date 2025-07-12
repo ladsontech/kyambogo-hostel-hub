@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,8 @@ const AdminDashboard = () => {
   const deleteHostel = useDeleteHostel();
 
   // Get all rooms from hostels for room management
-  const allRooms = (hostels || []).flatMap(hostel => 
-    (hostel.rooms || []).map(room => ({
+  const allRooms = (hostels || []).flatMap((hostel: any) => 
+    (hostel.rooms || []).map((room: any) => ({
       ...room,
       hostelName: hostel.name,
       hostelLocation: hostel.location,
@@ -34,13 +35,13 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredHostels = (hostels || []).filter(hostel =>
+  const filteredHostels = (hostels || []).filter((hostel: any) =>
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredRooms = allRooms.filter(room =>
+  const filteredRooms = allRooms.filter((room: any) =>
     room.hostelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     room.hostelLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
     room.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {[...new Set(hostels?.map(h => h.contact_email))].length}
+                {[...new Set(hostels?.map((h: any) => h.contact_email))].length}
               </div>
               <p className="text-xs text-muted-foreground">
                 Unique contacts
@@ -212,7 +213,7 @@ const AdminDashboard = () => {
             )}
 
             <div className="space-y-4">
-              {filteredHostels.map((hostel) => (
+              {filteredHostels.map((hostel: any) => (
                 <Card key={hostel.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-3 sm:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
@@ -248,7 +249,7 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                          {hostel.rooms?.slice(0, 3).map((room) => (
+                          {hostel.rooms?.slice(0, 3).map((room: any) => (
                             <Badge key={room.id} variant="outline" className="text-xs">
                               {room.price.toLocaleString()} UGX
                             </Badge>
@@ -318,7 +319,7 @@ const AdminDashboard = () => {
             </div>
 
             <div className="space-y-4">
-              {filteredRooms.map((room) => (
+              {filteredRooms.map((room: any) => (
                 <Card key={room.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-3 sm:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
@@ -350,15 +351,15 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800 text-sm sm:text-base">Owner Contact</h4>
+                          <h4 className="font-medium text-gray-800 text-sm sm:text-base">Contact</h4>
                           <div className="text-sm text-gray-600">
                             <p className="flex items-center gap-2">
                               <Users className="h-4 w-4 flex-shrink-0" />
-                              <span>{room.ownerName}</span>
+                              <span>{room.contactName}</span>
                             </p>
                             <p className="flex items-center gap-2">
                               <Phone className="h-4 w-4 flex-shrink-0" />
-                              <span>{room.ownerPhone}</span>
+                              <span>{room.contactPhone}</span>
                             </p>
                           </div>
                         </div>
@@ -375,10 +376,10 @@ const AdminDashboard = () => {
                           variant="outline" 
                           size="sm"
                           className="flex-1 lg:flex-none"
-                          onClick={() => window.open(`tel:${room.ownerPhone}`, '_blank')}
+                          onClick={() => window.open(`tel:${room.contactPhone}`, '_blank')}
                         >
                           <Phone className="h-4 w-4 mr-1" />
-                          Call Owner
+                          Call
                         </Button>
                       </div>
                     </div>
