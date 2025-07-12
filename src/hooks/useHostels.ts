@@ -1,5 +1,5 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Hostel } from '@/types/hostel';
 
@@ -13,7 +13,6 @@ export const useHostels = () => {
         .from('hostels')
         .select(`
           *,
-          owner:owners(*),
           rooms(*)
         `);
 
@@ -45,12 +44,12 @@ export const useHostels = () => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        ownerId: hostel.owner_id,
-        ownerName: hostel.owner?.name || '',
-        ownerContact: hostel.owner?.phone || '',
+        ownerId: '', // No longer used
+        ownerName: hostel.contact_name || '',
+        ownerContact: hostel.contact_phone || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
-        amenities: (hostel as any).amenities || []
+        amenities: hostel.amenities || []
       }));
 
       console.log('Mapped hostels:', mappedHostels);
@@ -71,7 +70,6 @@ export const useHostel = (id: string) => {
         .from('hostels')
         .select(`
           *,
-          owner:owners(*),
           rooms(*)
         `)
         .eq('id', id)
@@ -103,12 +101,12 @@ export const useHostel = (id: string) => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        ownerId: data.owner_id,
-        ownerName: data.owner?.name || '',
-        ownerContact: data.owner?.phone || '',
+        ownerId: '', // No longer used
+        ownerName: data.contact_name || '',
+        ownerContact: data.contact_phone || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
-        amenities: (data as any).amenities || []
+        amenities: data.amenities || []
       };
 
       console.log('Mapped single hostel:', hostel);

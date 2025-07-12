@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed } from "lucide-react";
+import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useDeleteHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
+import AdminHostelForm from "@/components/AdminHostelForm";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showHostelForm, setShowHostelForm] = useState(false);
   const { data: hostels, isLoading } = useAllHostels();
   const deleteHostel = useDeleteHostel();
 
@@ -21,8 +23,8 @@ const AdminDashboard = () => {
       ...room,
       hostelName: hostel.name,
       hostelLocation: hostel.location,
-      ownerName: hostel.owner?.name,
-      ownerPhone: hostel.owner?.phone
+      contactName: hostel.contact_name,
+      contactPhone: hostel.contact_phone
     }))
   );
 
@@ -35,14 +37,14 @@ const AdminDashboard = () => {
   const filteredHostels = (hostels || []).filter(hostel =>
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    hostel.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredRooms = allRooms.filter(room =>
     room.hostelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     room.hostelLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
     room.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.ownerName?.toLowerCase().includes(searchTerm.toLowerCase())
+    room.contactName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -135,15 +137,15 @@ const AdminDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Active Owners</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Contact Points</CardTitle>
               <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {[...new Set(hostels?.map(h => h.owner_id))].length}
+                {[...new Set(hostels?.map(h => h.contact_email))].length}
               </div>
               <p className="text-xs text-muted-foreground">
-                Registered owners
+                Unique contacts
               </p>
             </CardContent>
           </Card>
@@ -179,7 +181,16 @@ const AdminDashboard = () => {
 
           <TabsContent value="hostels" className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-xl sm:text-3xl font-bold text-gray-800">All Hostels</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl sm:text-3xl font-bold text-gray-800">All Hostels</h2>
+                <Button 
+                  onClick={() => setShowHostelForm(!showHostelForm)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Hostel
+                </Button>
+              </div>
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -190,6 +201,15 @@ const AdminDashboard = () => {
                 />
               </div>
             </div>
+
+            {showHostelForm && (
+              <div className="mb-8">
+                <AdminHostelForm 
+                  onSuccess={() => setShowHostelForm(false)}
+                  onCancel={() => setShowHostelForm(false)}
+                />
+              </div>
+            )}
 
             <div className="space-y-4">
               {filteredHostels.map((hostel) => (
@@ -206,15 +226,15 @@ const AdminDashboard = () => {
                         
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                           <div className="space-y-2">
-                            <h4 className="font-medium text-gray-800 text-sm sm:text-base">Owner Details</h4>
+                            <h4 className="font-medium text-gray-800 text-sm sm:text-base">Contact Details</h4>
                             <div className="text-sm text-gray-600">
                               <p className="flex items-center gap-2">
                                 <Users className="h-4 w-4 flex-shrink-0" />
-                                <span className="truncate">{hostel.owner?.name}</span>
+                                <span className="truncate">{hostel.contact_name}</span>
                               </p>
                               <p className="flex items-center gap-2">
                                 <Phone className="h-4 w-4 flex-shrink-0" />
-                                <span className="truncate">{hostel.owner?.phone}</span>
+                                <span className="truncate">{hostel.contact_phone}</span>
                               </p>
                             </div>
                           </div>
@@ -252,7 +272,7 @@ const AdminDashboard = () => {
                           variant="outline" 
                           size="sm"
                           className="flex-1 lg:flex-none"
-                          onClick={() => window.open(`tel:${hostel.owner?.phone}`, '_blank')}
+                          onClick={() => window.open(`tel:${hostel.contact_phone}`, '_blank')}
                         >
                           <Phone className="h-4 w-4 mr-1" />
                           Call
@@ -278,7 +298,7 @@ const AdminDashboard = () => {
               <div className="text-center py-12 sm:py-16">
                 <Building2 className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No hostels found</h3>
-                <p className="text-gray-500">Try adjusting your search criteria</p>
+                <p className="text-gray-500">Try adjusting your search criteria or add a new hostel</p>
               </div>
             )}
           </TabsContent>
