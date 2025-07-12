@@ -83,7 +83,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
   const onSubmit = async (data: HostelFormData) => {
     try {
       await updateHostel.mutateAsync({
-        id: hostel.id as string,
+        id: hostel.id,
         name: data.name,
         location: data.location,
         description: data.description,
