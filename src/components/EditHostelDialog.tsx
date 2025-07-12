@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUpdateHostel, useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/useAdminData";
 import { Trash2, Edit, Plus, Image as ImageIcon } from "lucide-react";
 import SimpleImageCarousel from "./SimpleImageCarousel";
-import EditRoomDialog from "./EditRoomDialog";
+import { EditRoomDialog } from "./EditRoomDialog";
 
 const hostelSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -85,7 +84,13 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
     try {
       await updateHostel.mutateAsync({
         id: hostel.id as string,
-        ...data,
+        name: data.name,
+        location: data.location,
+        description: data.description,
+        contact_name: data.contact_name,
+        contact_phone: data.contact_phone,
+        contact_email: data.contact_email,
+        amenities: data.amenities,
       });
       onOpenChange(false);
     } catch (error) {
