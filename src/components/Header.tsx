@@ -13,10 +13,7 @@ export const Header = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2 sm:space-x-3">
           <img src="/images/logo.png" alt="Kyambogo Hostel Connect Logo" className="h-14 w-auto object-contain" />
-          <div className="hidden sm:block">
-            <h1 className="text-lg sm:text-xl font-bold text-gray-800">Kyambogo Hostel Connect</h1>
-            <p className="text-xs text-gray-600 hidden md:block">Find Your Perfect Stay</p>
-          </div>
+          
         </Link>
         
         {/* Desktop Navigation */}
