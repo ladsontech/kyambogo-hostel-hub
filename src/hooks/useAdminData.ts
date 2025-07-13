@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -37,9 +36,9 @@ export const useCreateHostel = () => {
       name: string;
       location: string;
       description: string;
-      contact_name: string;
       contact_phone: string;
-      contact_email: string;
+      contact_name?: string;
+      contact_email?: string;
       images?: string[];
       amenities?: string[];
     }) => {
@@ -79,7 +78,9 @@ export const useCreateHostel = () => {
       const insertData = {
         ...hostelData,
         owner_id: systemOwnerId,
-        approved: true // Admin-created hostels are automatically approved
+        approved: true, // Admin-created hostels are automatically approved
+        contact_name: hostelData.contact_name || 'Admin',
+        contact_email: hostelData.contact_email || 'admin@system.local'
       };
 
       const { data, error } = await supabase
@@ -126,15 +127,21 @@ export const useUpdateHostel = () => {
       name: string;
       location: string;
       description: string;
-      contact_name: string;
       contact_phone: string;
-      contact_email: string;
+      contact_name?: string;
+      contact_email?: string;
       images?: string[];
       amenities?: string[];
     }) => {
+      const updateData = {
+        ...hostelData,
+        contact_name: hostelData.contact_name || 'Admin',
+        contact_email: hostelData.contact_email || 'admin@system.local'
+      };
+
       const { data, error } = await supabase
         .from('hostels')
-        .update(hostelData)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
