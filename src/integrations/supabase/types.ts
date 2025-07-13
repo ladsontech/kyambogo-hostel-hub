@@ -42,6 +42,9 @@ export type Database = {
         Row: {
           amenities: string[] | null
           approved: boolean | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -54,6 +57,9 @@ export type Database = {
         Insert: {
           amenities?: string[] | null
           approved?: boolean | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -66,6 +72,9 @@ export type Database = {
         Update: {
           amenities?: string[] | null
           approved?: boolean | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           description?: string | null
           id?: string

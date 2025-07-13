@@ -7,6 +7,8 @@ export const useAllHostels = () => {
   return useQuery({
     queryKey: ['all-hostels'],
     queryFn: async () => {
+      console.log('Fetching all hostels for admin...');
+      
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -15,7 +17,12 @@ export const useAllHostels = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching all hostels:', error);
+        throw error;
+      }
+      
+      console.log('All hostels data:', data);
       return data;
     }
   });
@@ -36,11 +43,44 @@ export const useCreateHostel = () => {
       images?: string[];
       amenities?: string[];
     }) => {
-      // Cast the data to match the expected type structure
+      console.log('Creating hostel with data:', hostelData);
+      
+      // First, ensure we have a system owner for admin-managed hostels
+      let systemOwnerId = 'admin-system-owner';
+      
+      // Check if system owner exists
+      const { data: existingOwner } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('id', systemOwnerId)
+        .maybeSingle();
+
+      if (!existingOwner) {
+        // Create system owner if it doesn't exist
+        const { data: newOwner, error: ownerError } = await supabase
+          .from('owners')
+          .insert([{
+            id: systemOwnerId,
+            name: 'System Admin',
+            email: 'admin@system.local',
+            phone: '0000000000',
+            user_id: null
+          }])
+          .select()
+          .single();
+
+        if (ownerError) {
+          console.log('Owner creation failed, using UUID for owner_id');
+          // If we can't create the owner (due to RLS), use a UUID directly
+          systemOwnerId = '00000000-0000-0000-0000-000000000000';
+        }
+      }
+
       const insertData = {
         ...hostelData,
-        owner_id: 'admin-managed' // Placeholder since the field still exists in types
-      } as any;
+        owner_id: systemOwnerId,
+        approved: true // Admin-created hostels are automatically approved
+      };
 
       const { data, error } = await supabase
         .from('hostels')
@@ -48,15 +88,29 @@ export const useCreateHostel = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating hostel:', error);
+        throw error;
+      }
+      
+      console.log('Created hostel:', data);
       return data;
     },
     onSuccess: () => {
+      // Invalidate both queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: "Hostel Created",
         description: "The hostel has been added successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to create hostel:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create hostel. Please try again.",
+        variant: "destructive"
       });
     }
   });
@@ -80,7 +134,7 @@ export const useUpdateHostel = () => {
     }) => {
       const { data, error } = await supabase
         .from('hostels')
-        .update(hostelData as any)
+        .update(hostelData)
         .eq('id', id)
         .select()
         .single();
