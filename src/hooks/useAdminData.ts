@@ -44,36 +44,8 @@ export const useCreateHostel = () => {
     }) => {
       console.log('Creating hostel with data:', hostelData);
       
-      // First, ensure we have a system owner for admin-managed hostels
-      let systemOwnerId = 'admin-system-owner';
-      
-      // Check if system owner exists
-      const { data: existingOwner } = await supabase
-        .from('owners')
-        .select('id')
-        .eq('id', systemOwnerId)
-        .maybeSingle();
-
-      if (!existingOwner) {
-        // Create system owner if it doesn't exist
-        const { data: newOwner, error: ownerError } = await supabase
-          .from('owners')
-          .insert([{
-            id: systemOwnerId,
-            name: 'System Admin',
-            email: 'admin@system.local',
-            phone: '0000000000',
-            user_id: null
-          }])
-          .select()
-          .single();
-
-        if (ownerError) {
-          console.log('Owner creation failed, using UUID for owner_id');
-          // If we can't create the owner (due to RLS), use a UUID directly
-          systemOwnerId = '00000000-0000-0000-0000-000000000000';
-        }
-      }
+      // Create a simple UUID for owner_id since we don't need complex owner management
+      const systemOwnerId = '00000000-0000-0000-0000-000000000000';
 
       const insertData = {
         ...hostelData,
@@ -83,6 +55,8 @@ export const useCreateHostel = () => {
         contact_email: hostelData.contact_email || 'admin@system.local'
       };
 
+      console.log('Insert data:', insertData);
+
       const { data, error } = await supabase
         .from('hostels')
         .insert([insertData])
@@ -91,6 +65,7 @@ export const useCreateHostel = () => {
 
       if (error) {
         console.error('Error creating hostel:', error);
+        console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
       
@@ -110,7 +85,7 @@ export const useCreateHostel = () => {
       console.error('Failed to create hostel:', error);
       toast({
         title: "Error",
-        description: "Failed to create hostel. Please try again.",
+        description: error.message || "Failed to create hostel. Please try again.",
         variant: "destructive"
       });
     }
