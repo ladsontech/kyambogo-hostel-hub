@@ -21,9 +21,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
     name: "",
     location: "",
     description: "",
-    contact_name: "",
     contact_phone: "",
-    contact_email: "",
     images: [] as string[],
     amenities: [] as string[]
   });
@@ -44,7 +42,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
     
     // Validate required fields
     if (!hostelData.name.trim() || !hostelData.location.trim() || !hostelData.description.trim() ||
-        !hostelData.contact_name.trim() || !hostelData.contact_phone.trim() || !hostelData.contact_email.trim()) {
+        !hostelData.contact_phone.trim()) {
       return;
     }
 
@@ -54,9 +52,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
           name: "",
           location: "",
           description: "",
-          contact_name: "",
           contact_phone: "",
-          contact_email: "",
           images: [],
           amenities: []
         });
@@ -119,37 +115,14 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label>Contact Name *</Label>
-              <Input 
-                placeholder="John Doe" 
-                value={hostelData.contact_name}
-                onChange={(e) => setHostelData({...hostelData, contact_name: e.target.value})}
-                required 
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Contact Phone *</Label>
-              <Input 
-                placeholder="+256 700 000 000" 
-                value={hostelData.contact_phone}
-                onChange={(e) => setHostelData({...hostelData, contact_phone: e.target.value})}
-                required 
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Contact Email *</Label>
-              <Input 
-                type="email"
-                placeholder="contact@hostel.com" 
-                value={hostelData.contact_email}
-                onChange={(e) => setHostelData({...hostelData, contact_email: e.target.value})}
-                required 
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Contact Phone *</Label>
+            <Input 
+              placeholder="+256 700 000 000" 
+              value={hostelData.contact_phone}
+              onChange={(e) => setHostelData({...hostelData, contact_phone: e.target.value})}
+              required 
+            />
           </div>
 
           <div className="space-y-2">

@@ -24,7 +24,6 @@ const AdminDashboard = () => {
       ...room,
       hostelName: hostel.name,
       hostelLocation: hostel.location,
-      contactName: hostel.contact_name,
       contactPhone: hostel.contact_phone
     }))
   );
@@ -37,15 +36,13 @@ const AdminDashboard = () => {
 
   const filteredHostels = (hostels || []).filter((hostel: any) =>
     hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    hostel.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredRooms = allRooms.filter((room: any) =>
     room.hostelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     room.hostelLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.contactName?.toLowerCase().includes(searchTerm.toLowerCase())
+    room.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -138,7 +135,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="text-lg sm:text-2xl font-bold">
-                {[...new Set(hostels?.map((h: any) => h.contact_email))].length}
+                {[...new Set(hostels?.map((h: any) => h.contact_phone))].length}
               </div>
               <p className="text-xs text-muted-foreground">
                 Unique contacts
@@ -224,10 +221,6 @@ const AdminDashboard = () => {
                           <div className="space-y-2">
                             <h4 className="font-medium text-gray-800 text-sm sm:text-base">Contact Details</h4>
                             <div className="text-sm text-gray-600">
-                              <p className="flex items-center gap-2">
-                                <Users className="h-4 w-4 flex-shrink-0" />
-                                <span className="truncate">{hostel.contact_name}</span>
-                              </p>
                               <p className="flex items-center gap-2">
                                 <Phone className="h-4 w-4 flex-shrink-0" />
                                 <span className="truncate">{hostel.contact_phone}</span>
@@ -357,10 +350,6 @@ const AdminDashboard = () => {
                         <div className="space-y-2">
                           <h4 className="font-medium text-gray-800 text-sm sm:text-base">Contact</h4>
                           <div className="text-sm text-gray-600">
-                            <p className="flex items-center gap-2">
-                              <Users className="h-4 w-4 flex-shrink-0" />
-                              <span>{room.contactName}</span>
-                            </p>
                             <p className="flex items-center gap-2">
                               <Phone className="h-4 w-4 flex-shrink-0" />
                               <span>{room.contactPhone}</span>

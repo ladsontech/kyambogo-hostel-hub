@@ -32,9 +32,7 @@ const hostelSchema = z.object({
   name: z.string().min(1, "Name is required"),
   location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
-  contact_name: z.string().min(1, "Contact name is required"),
   contact_phone: z.string().min(1, "Contact phone is required"),
-  contact_email: z.string().email("Invalid email address"),
   amenities: z.array(z.string()).default([]),
 });
 
@@ -58,9 +56,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
       name: "",
       location: "",
       description: "",
-      contact_name: "",
       contact_phone: "",
-      contact_email: "",
       amenities: [],
     },
   });
@@ -72,9 +68,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         name: hostel.name || "",
         location: hostel.location || "",
         description: hostel.description || "",
-        contact_name: hostel.contact_name || "",
         contact_phone: hostel.contact_phone || "",
-        contact_email: hostel.contact_email || "",
         amenities: hostel.amenities || [],
       });
     }
@@ -87,9 +81,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         name: data.name,
         location: data.location,
         description: data.description,
-        contact_name: data.contact_name,
         contact_phone: data.contact_phone,
-        contact_email: data.contact_email,
         amenities: data.amenities,
       });
       onOpenChange(false);
@@ -167,49 +159,19 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="contact_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="contact_phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Phone</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="contact_email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="email" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="contact_phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="flex justify-end space-x-2">
                   <Button
