@@ -27,6 +27,7 @@ import { useUpdateHostel, useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/
 import { Trash2, Edit, Plus, Image as ImageIcon } from "lucide-react";
 import SimpleImageCarousel from "./SimpleImageCarousel";
 import { EditRoomDialog } from "./EditRoomDialog";
+import ImageUpload from "./ImageUpload";
 
 const hostelSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -34,6 +35,7 @@ const hostelSchema = z.object({
   description: z.string().min(1, "Description is required"),
   contact_phone: z.string().min(1, "Contact phone is required"),
   amenities: z.array(z.string()).default([]),
+  images: z.array(z.string()).default([]),
 });
 
 type HostelFormData = z.infer<typeof hostelSchema>;
@@ -58,6 +60,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
       description: "",
       contact_phone: "",
       amenities: [],
+      images: [],
     },
   });
 
@@ -70,6 +73,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         description: hostel.description || "",
         contact_phone: hostel.contact_phone || "",
         amenities: hostel.amenities || [],
+        images: hostel.images || [],
       });
     }
   }, [hostel, open, form]);
@@ -83,6 +87,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         description: data.description,
         contact_phone: data.contact_phone,
         amenities: data.amenities,
+        images: data.images,
       });
       onOpenChange(false);
     } catch (error) {
@@ -96,34 +101,44 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
     }
   };
 
+  const handleImagesChange = (newImages: string[]) => {
+    form.setValue('images', newImages);
+  };
+
   if (!hostel) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Hostel: {hostel.name}</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-3 sm:p-6">
+        <DialogHeader className="pb-3 sm:pb-6">
+          <DialogTitle className="text-lg sm:text-xl">Edit Hostel: {hostel.name}</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="details">Hostel Details</TabsTrigger>
-            <TabsTrigger value="rooms">Rooms ({hostel.rooms?.length || 0})</TabsTrigger>
-            <TabsTrigger value="images">Images</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="details" className="text-xs sm:text-sm px-2 sm:px-4 py-2">
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="rooms" className="text-xs sm:text-sm px-2 sm:px-4 py-2">
+              Rooms ({hostel.rooms?.length || 0})
+            </TabsTrigger>
+            <TabsTrigger value="images" className="text-xs sm:text-sm px-2 sm:px-4 py-2">
+              Images
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-4">
+          <TabsContent value="details" className="space-y-4 mt-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel className="text-sm sm:text-base">Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} className="text-sm sm:text-base" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -135,9 +150,9 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location</FormLabel>
+                        <FormLabel className="text-sm sm:text-base">Location</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} className="text-sm sm:text-base" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -150,9 +165,9 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel className="text-sm sm:text-base">Description</FormLabel>
                       <FormControl>
-                        <Textarea {...field} rows={3} />
+                        <Textarea {...field} rows={3} className="text-sm sm:text-base" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -164,24 +179,47 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                   name="contact_phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Contact Phone</FormLabel>
+                      <FormLabel className="text-sm sm:text-base">Contact Phone</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} className="text-sm sm:text-base" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <div className="flex justify-end space-x-2">
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm sm:text-base">Hostel Images</FormLabel>
+                      <FormControl>
+                        <ImageUpload
+                          images={field.value}
+                          onImagesChange={handleImagesChange}
+                          maxImages={10}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
+                    className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={updateHostel.isPending}>
+                  <Button 
+                    type="submit" 
+                    disabled={updateHostel.isPending}
+                    className="w-full sm:w-auto"
+                  >
                     {updateHostel.isPending ? "Updating..." : "Update Hostel"}
                   </Button>
                 </div>
@@ -189,30 +227,30 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
             </Form>
           </TabsContent>
 
-          <TabsContent value="rooms" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Room Management</h3>
+          <TabsContent value="rooms" className="space-y-4 mt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="text-base sm:text-lg font-semibold">Room Management</h3>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4">
               {hostel.rooms?.map((room: any) => (
-                <Card key={room.id}>
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-base capitalize">
+                <Card key={room.id} className="border">
+                  <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm sm:text-base capitalize mb-2">
                           {room.type.replace('-', ' ')} Room
                         </CardTitle>
-                        <div className="flex gap-2 mt-2">
-                          <Badge className="bg-blue-100 text-blue-800">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">
                             {room.price.toLocaleString()} UGX / {room.price_period}
                           </Badge>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {room.available_rooms}/{room.total_rooms} available
                           </Badge>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         <EditRoomDialog room={room} />
                         <Button
                           variant="outline"
@@ -220,14 +258,14 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                           onClick={() => handleDeleteRoom(room.id)}
                           className="text-red-600 hover:text-red-700"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3 sm:p-6 pt-0">
                     {room.description && (
-                      <p className="text-sm text-gray-600 mb-3">{room.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 mb-3">{room.description}</p>
                     )}
                     {room.images && room.images.length > 0 && (
                       <div className="mt-3">
@@ -239,34 +277,41 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
               ))}
 
               {(!hostel.rooms || hostel.rooms.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No rooms added yet.</p>
-                  <p className="text-sm">Click "Add Room" to get started.</p>
+                <div className="text-center py-6 sm:py-8 text-gray-500">
+                  <p className="text-sm sm:text-base">No rooms added yet.</p>
+                  <p className="text-xs sm:text-sm">Click "Add Room" to get started.</p>
                 </div>
               )}
             </div>
           </TabsContent>
 
-          <TabsContent value="images" className="space-y-4">
+          <TabsContent value="images" className="space-y-4 mt-4">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Hostel Images</h3>
-              {hostel.images && hostel.images.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {hostel.images.map((image: string, index: number) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={image}
-                        alt={`Hostel image ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-lg shadow-md"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                  <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>No images uploaded yet.</p>
-                  <p className="text-sm">Images can be managed through the main hostel form.</p>
+              <h3 className="text-base sm:text-lg font-semibold">Hostel Images</h3>
+              <Form {...form}>
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <ImageUpload
+                          images={field.value}
+                          onImagesChange={handleImagesChange}
+                          maxImages={10}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Form>
+              
+              {form.watch('images')?.length === 0 && (
+                <div className="text-center py-6 sm:py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                  <ImageIcon className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-sm sm:text-base">No images uploaded yet.</p>
+                  <p className="text-xs sm:text-sm">Use the upload button above to add images.</p>
                 </div>
               )}
             </div>
