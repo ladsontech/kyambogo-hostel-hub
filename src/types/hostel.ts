@@ -17,9 +17,9 @@ export interface Hostel {
   description: string;
   images: string[];
   roomTypes: RoomType[];
-  ownerId: string;
-  ownerName: string;
-  ownerContact: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
   approved: boolean;
   createdAt: string;
   amenities?: string[];
