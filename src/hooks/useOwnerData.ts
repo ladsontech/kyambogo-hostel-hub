@@ -14,14 +14,22 @@ export const useOwnerProfile = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Since we no longer have an owners table, we check if the user has any hostels
+      // This serves as their "profile" - if they have hostels, they're an owner
       const { data, error } = await supabase
-        .from('owners')
-        .select('*')
-        .eq('user_id', user.id)
+        .from('hostels')
+        .select('contact_name, contact_email, contact_phone')
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      
+      // Return the contact info from their first hostel, or null if they have no hostels
+      return data ? {
+        name: data.contact_name || '',
+        email: data.contact_email || '',
+        phone: data.contact_phone || ''
+      } : null;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
@@ -30,6 +38,7 @@ export const useOwnerProfile = () => {
 
 export const useCreateOwnerProfile = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (profileData: {
@@ -37,36 +46,16 @@ export const useCreateOwnerProfile = () => {
       email: string;
       phone: string;
     }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Check if profile already exists
-      const { data: existing } = await supabase
-        .from('owners')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existing) {
-        throw new Error('Owner profile already exists');
-      }
-
-      const { data, error } = await supabase
-        .from('owners')
-        .insert({
-          user_id: user.id,
-          name: profileData.name,
-          email: profileData.email,
-          phone: profileData.phone
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Since we don't have an owners table anymore, we just return the profile data
+      // The actual hostel creation will handle storing this contact information
+      return profileData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-profile'] });
+      toast({
+        title: "Profile Ready",
+        description: "You can now create your hostel listing.",
+      });
     }
   });
 };
@@ -78,17 +67,8 @@ export const useOwnerHostel = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // First get the owner profile with better error handling
-      const { data: owner, error: ownerError } = await supabase
-        .from('owners')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (ownerError) throw ownerError;
-      if (!owner) return null;
-
-      // Then get the hostel for this owner with optimized query
+      // Find hostels where the contact_email matches the user's email
+      // This is how we identify which hostel belongs to the current user
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -105,7 +85,7 @@ export const useOwnerHostel = () => {
             created_at
           )
         `)
-        .eq('owner_id', owner.id)
+        .eq('contact_email', user.email)
         .maybeSingle();
 
       if (error) throw error;
@@ -128,40 +108,39 @@ export const useCreateOrUpdateHostel = () => {
       description: string;
       images?: string[];
       amenities?: string[];
+      contact_name?: string;
+      contact_phone?: string;
+      contact_email?: string;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get owner profile with better error handling
-      const { data: owner, error: ownerError } = await supabase
-        .from('owners')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (ownerError) throw ownerError;
-      if (!owner) throw new Error('Owner profile not found');
-
-      // Check if hostel already exists for this owner
+      // Check if user already has a hostel (by email)
       const { data: existingHostel, error: checkError } = await supabase
         .from('hostels')
         .select('id')
-        .eq('owner_id', owner.id)
+        .eq('contact_email', user.email)
         .maybeSingle();
 
       if (checkError) throw checkError;
+
+      const hostelPayload = {
+        name: hostelData.name,
+        location: hostelData.location,
+        description: hostelData.description,
+        images: hostelData.images || [],
+        amenities: hostelData.amenities || [],
+        contact_name: hostelData.contact_name || '',
+        contact_phone: hostelData.contact_phone || '',
+        contact_email: hostelData.contact_email || user.email,
+        approved: true // Auto-approve for now
+      };
 
       if (existingHostel) {
         // Update existing hostel
         const { data, error } = await supabase
           .from('hostels')
-          .update({
-            name: hostelData.name,
-            location: hostelData.location,
-            description: hostelData.description,
-            images: hostelData.images || [],
-            amenities: hostelData.amenities || []
-          })
+          .update(hostelPayload as any)
           .eq('id', existingHostel.id)
           .select()
           .single();
@@ -169,17 +148,10 @@ export const useCreateOrUpdateHostel = () => {
         if (error) throw error;
         return data;
       } else {
-        // Create new hostel - no approval needed
+        // Create new hostel
         const { data, error } = await supabase
           .from('hostels')
-          .insert({
-            owner_id: owner.id,
-            name: hostelData.name,
-            location: hostelData.location,
-            description: hostelData.description,
-            images: hostelData.images || [],
-            amenities: hostelData.amenities || []
-          })
+          .insert([hostelPayload as any])
           .select()
           .single();
 
