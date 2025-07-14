@@ -8,13 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Building2, ArrowRight, Loader2, Wifi, Car, Shield, Coffee } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateOrUpdateHostel } from "@/hooks/useOwnerData";
 import ImageUpload from "@/components/ImageUpload";
 import { AVAILABLE_AMENITIES } from "@/types/hostel";
+import { supabase } from "@/integrations/supabase/client";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface HostelOnboardingProps {
   onComplete: () => void;
   existingHostel?: {
+    id?: string;
     name: string;
     location: string;
     description: string;
@@ -33,7 +35,54 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
   });
   
   const { toast } = useToast();
-  const createOrUpdateHostel = useCreateOrUpdateHostel();
+  const queryClient = useQueryClient();
+
+  const createOrUpdateHostel = useMutation({
+    mutationFn: async (data: typeof hostelData) => {
+      if (existingHostel?.id) {
+        // Update existing hostel
+        const { data: updatedData, error } = await supabase
+          .from('hostels')
+          .update({
+            name: data.name,
+            location: data.location,
+            description: data.description,
+            images: data.images,
+            amenities: data.amenities
+          })
+          .eq('id', existingHostel.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return updatedData;
+      } else {
+        // Create new hostel
+        const { data: newData, error } = await supabase
+          .from('hostels')
+          .insert([{
+            name: data.name,
+            location: data.location,
+            description: data.description,
+            images: data.images,
+            amenities: data.amenities,
+            contact_name: 'Owner',
+            contact_phone: 'Unknown',
+            contact_email: 'owner@example.com',
+            approved: true
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return newData;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+    }
+  });
 
   const handleAmenityChange = (amenityId: string, checked: boolean) => {
     setHostelData(prev => ({
