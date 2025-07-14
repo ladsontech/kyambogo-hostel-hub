@@ -1,3 +1,4 @@
+
 import { Hostel } from "@/types/hostel";
 
 export const mockHostels: Hostel[] = [
@@ -32,9 +33,9 @@ export const mockHostels: Hostel[] = [
         availableRooms: 4
       }
     ],
-    ownerId: "owner1",
-    ownerName: "John Mugisha",
-    ownerContact: "+256701234567",
+    contactName: "John Mugisha",
+    contactPhone: "+256701234567",
+    contactEmail: "john.mugisha@email.com",
     approved: true,
     createdAt: "2024-01-15"
   },
@@ -68,9 +69,9 @@ export const mockHostels: Hostel[] = [
         availableRooms: 5
       }
     ],
-    ownerId: "owner2",
-    ownerName: "Sarah Namukasa",
-    ownerContact: "+256702345678",
+    contactName: "Sarah Namukasa",
+    contactPhone: "+256702345678",
+    contactEmail: "sarah.namukasa@email.com",
     approved: true,
     createdAt: "2024-01-20"
   },
@@ -105,9 +106,9 @@ export const mockHostels: Hostel[] = [
         availableRooms: 3
       }
     ],
-    ownerId: "owner3",
-    ownerName: "David Ssebunya",
-    ownerContact: "+256703456789",
+    contactName: "David Ssebunya",
+    contactPhone: "+256703456789",
+    contactEmail: "david.ssebunya@email.com",
     approved: true,
     createdAt: "2024-02-01"
   }

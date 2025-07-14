@@ -44,9 +44,9 @@ export const useHostels = () => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        ownerId: '', // No longer used
-        ownerName: hostel.contact_name || '',
-        ownerContact: hostel.contact_phone || '',
+        contactName: hostel.contact_name || '',
+        contactPhone: hostel.contact_phone || '',
+        contactEmail: hostel.contact_email || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: hostel.amenities || []
@@ -101,9 +101,9 @@ export const useHostel = (id: string) => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        ownerId: '', // No longer used
-        ownerName: (data as any).contact_name || '',
-        ownerContact: (data as any).contact_phone || '',
+        contactName: (data as any).contact_name || '',
+        contactPhone: (data as any).contact_phone || '',
+        contactEmail: (data as any).contact_email || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
         amenities: data.amenities || []
