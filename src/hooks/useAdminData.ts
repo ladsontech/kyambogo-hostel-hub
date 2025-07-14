@@ -44,12 +44,8 @@ export const useCreateHostel = () => {
     }) => {
       console.log('Creating hostel with data:', hostelData);
       
-      // Create a simple UUID for owner_id since we don't need complex owner management
-      const systemOwnerId = '00000000-0000-0000-0000-000000000000';
-
       const insertData = {
         ...hostelData,
-        owner_id: systemOwnerId,
         approved: true, // Admin-created hostels are automatically approved
         contact_name: hostelData.contact_name || 'Admin',
         contact_email: hostelData.contact_email || 'admin@system.local'
