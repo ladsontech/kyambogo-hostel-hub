@@ -51,7 +51,6 @@ export type Database = {
           images: string[] | null
           location: string
           name: string
-          owner_id: string
           updated_at: string | null
         }
         Insert: {
@@ -66,7 +65,6 @@ export type Database = {
           images?: string[] | null
           location: string
           name: string
-          owner_id: string
           updated_at?: string | null
         }
         Update: {
@@ -81,46 +79,7 @@ export type Database = {
           images?: string[] | null
           location?: string
           name?: string
-          owner_id?: string
           updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hostels_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "owners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      owners: {
-        Row: {
-          created_at: string | null
-          email: string
-          id: string
-          name: string
-          phone: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email: string
-          id?: string
-          name: string
-          phone: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string
-          id?: string
-          name?: string
-          phone?: string
-          updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }

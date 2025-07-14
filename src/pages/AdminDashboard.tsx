@@ -10,6 +10,8 @@ import { useAllHostels, useDeleteHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
 import AdminHostelForm from "@/components/AdminHostelForm";
 import EditHostelDialog from "@/components/EditHostelDialog";
+import { AddRoomDialog } from "@/components/AddRoomDialog";
+import { EditRoomDialog } from "@/components/EditRoomDialog";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -266,6 +268,10 @@ const AdminDashboard = () => {
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
+                        <AddRoomDialog 
+                          hostelId={hostel.id} 
+                          hostelName={hostel.name}
+                        />
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -365,6 +371,7 @@ const AdminDashboard = () => {
                       </div>
                       
                       <div className="flex flex-row lg:flex-col gap-2 lg:ml-4 flex-shrink-0">
+                        <EditRoomDialog room={room} />
                         <Button 
                           variant="outline" 
                           size="sm"
