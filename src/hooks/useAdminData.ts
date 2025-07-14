@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -53,9 +54,10 @@ export const useCreateHostel = () => {
 
       console.log('Insert data:', insertData);
 
+      // Cast to any to bypass the outdated type definition that still expects owner_id
       const { data, error } = await supabase
         .from('hostels')
-        .insert([insertData])
+        .insert([insertData as any])
         .select()
         .single();
 
