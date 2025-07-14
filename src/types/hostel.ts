@@ -25,14 +25,6 @@ export interface Hostel {
   amenities?: string[];
 }
 
-export interface Owner {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  createdAt: string;
-}
-
 export const ROOM_TYPE_LABELS = {
   'single-self-contained': 'Single Self-Contained',
   'double-self-contained': 'Double Self-Contained',
