@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -53,9 +54,10 @@ export const useCreateHostel = () => {
 
       console.log('Insert data:', insertData);
 
+      // Type assertion to work around outdated Supabase types that still expect owner_id
       const { data, error } = await supabase
         .from('hostels')
-        .insert([insertData])
+        .insert([insertData as any])
         .select()
         .single();
 
@@ -110,9 +112,10 @@ export const useUpdateHostel = () => {
         contact_email: hostelData.contact_email || 'admin@system.local'
       };
 
+      // Type assertion to work around outdated Supabase types that still expect owner_id
       const { data, error } = await supabase
         .from('hostels')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();
