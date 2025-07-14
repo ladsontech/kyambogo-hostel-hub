@@ -49,7 +49,7 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
             description: data.description,
             images: data.images,
             amenities: data.amenities
-          })
+          } as any)
           .eq('id', existingHostel.id)
           .select()
           .single();
@@ -70,7 +70,7 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
             contact_phone: 'Unknown',
             contact_email: 'owner@example.com',
             approved: true
-          }])
+          } as any])
           .select()
           .single();
 
