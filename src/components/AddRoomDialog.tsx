@@ -12,6 +12,7 @@ import { ROOM_TYPE_LABELS } from "@/types/hostel";
 import { useCreateRoom } from "@/hooks/useAdminData";
 import { Database } from "@/integrations/supabase/types";
 import ImageUpload from "@/components/ImageUpload";
+import { useToast } from "@/hooks/use-toast";
 
 type RoomType = Database['public']['Enums']['room_type'];
 
@@ -22,6 +23,7 @@ interface AddRoomDialogProps {
 
 export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     type: 'single-self-contained' as RoomType,
     price: '',
@@ -49,19 +51,80 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    createRoom.mutate({
+    console.log('Form submitted with data:', formData);
+    console.log('Hostel ID:', hostelId);
+    
+    // Validate form data
+    if (!formData.price || !formData.description || !formData.totalRooms || !formData.availableRooms) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const priceNum = parseInt(formData.price);
+    const totalRoomsNum = parseInt(formData.totalRooms);
+    const availableRoomsNum = parseInt(formData.availableRooms);
+
+    if (isNaN(priceNum) || priceNum <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid price.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isNaN(totalRoomsNum) || totalRoomsNum <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid number of total rooms.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isNaN(availableRoomsNum) || availableRoomsNum < 0 || availableRoomsNum > totalRoomsNum) {
+      toast({
+        title: "Validation Error",
+        description: "Available rooms must be between 0 and total rooms.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const roomData = {
       hostel_id: hostelId,
       type: formData.type,
-      price: parseInt(formData.price),
+      price: priceNum,
       price_period: formData.pricePeriod,
       description: formData.description,
-      total_rooms: parseInt(formData.totalRooms),
-      available_rooms: parseInt(formData.availableRooms),
+      total_rooms: totalRoomsNum,
+      available_rooms: availableRoomsNum,
       images: formData.images
-    }, {
-      onSuccess: () => {
+    };
+
+    console.log('Submitting room data:', roomData);
+    
+    createRoom.mutate(roomData, {
+      onSuccess: (data) => {
+        console.log('Room created successfully:', data);
         setOpen(false);
         resetForm();
+        toast({
+          title: "Success",
+          description: "Room has been added successfully.",
+        });
+      },
+      onError: (error) => {
+        console.error('Error creating room:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create room. Please try again.",
+          variant: "destructive"
+        });
       }
     });
   };
@@ -85,12 +148,12 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Room Type</Label>
+              <Label htmlFor="room-type">Room Type *</Label>
               <Select 
                 value={formData.type} 
                 onValueChange={(value: RoomType) => setFormData({...formData, type: value})}
               >
-                <SelectTrigger>
+                <SelectTrigger id="room-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -101,19 +164,21 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Price (UGX)</Label>
+              <Label htmlFor="room-price">Price (UGX) *</Label>
               <Input 
+                id="room-price"
                 type="number" 
                 value={formData.price}
                 onChange={(e) => setFormData({...formData, price: e.target.value})}
                 required 
+                min="1"
                 placeholder="Enter price"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Pricing Period</Label>
+            <Label>Pricing Period *</Label>
             <RadioGroup 
               value={formData.pricePeriod} 
               onValueChange={(value: "month" | "semester") => setFormData({...formData, pricePeriod: value})}
@@ -132,8 +197,9 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Total Rooms</Label>
+              <Label htmlFor="total-rooms">Total Rooms *</Label>
               <Input 
+                id="total-rooms"
                 type="number" 
                 min="1" 
                 value={formData.totalRooms}
@@ -142,10 +208,12 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Currently Available</Label>
+              <Label htmlFor="available-rooms">Currently Available *</Label>
               <Input 
+                id="available-rooms"
                 type="number" 
                 min="0" 
+                max={formData.totalRooms}
                 value={formData.availableRooms}
                 onChange={(e) => setFormData({...formData, availableRooms: e.target.value})}
                 required 
@@ -154,8 +222,9 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label>Room Description</Label>
+            <Label htmlFor="room-description">Room Description *</Label>
             <Textarea 
+              id="room-description"
               placeholder="Describe this room type, its features, amenities, and what makes it special..."
               rows={4}
               value={formData.description}
@@ -168,7 +237,10 @@ export const AddRoomDialog = ({ hostelId, hostelName }: AddRoomDialogProps) => {
             <Label>Room Images</Label>
             <ImageUpload
               images={formData.images}
-              onImagesChange={(images) => setFormData({...formData, images})}
+              onImagesChange={(images) => {
+                console.log('Images updated:', images);
+                setFormData({...formData, images});
+              }}
               maxImages={3}
             />
           </div>
