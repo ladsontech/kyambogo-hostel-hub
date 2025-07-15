@@ -47,6 +47,7 @@ export type Database = {
           contact_phone: string | null
           created_at: string | null
           description: string | null
+          featured: boolean
           id: string
           images: string[] | null
           location: string
@@ -61,6 +62,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean
           id?: string
           images?: string[] | null
           location: string
@@ -75,6 +77,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean
           id?: string
           images?: string[] | null
           location?: string

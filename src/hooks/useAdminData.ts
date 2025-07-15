@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +14,7 @@ export const useAllHostels = () => {
           *,
           rooms(*)
         `)
+        .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -42,6 +42,7 @@ export const useCreateHostel = () => {
       contact_email?: string;
       images?: string[];
       amenities?: string[];
+      featured?: boolean;
     }) => {
       console.log('Creating hostel with data:', hostelData);
       
@@ -49,7 +50,8 @@ export const useCreateHostel = () => {
         ...hostelData,
         approved: true, // Admin-created hostels are automatically approved
         contact_name: hostelData.contact_name || 'Admin',
-        contact_email: hostelData.contact_email || 'admin@system.local'
+        contact_email: hostelData.contact_email || 'admin@system.local',
+        featured: hostelData.featured || false
       };
 
       console.log('Insert data:', insertData);
@@ -104,11 +106,13 @@ export const useUpdateHostel = () => {
       contact_email?: string;
       images?: string[];
       amenities?: string[];
+      featured?: boolean;
     }) => {
       const updateData = {
         ...hostelData,
         contact_name: hostelData.contact_name || 'Admin',
-        contact_email: hostelData.contact_email || 'admin@system.local'
+        contact_email: hostelData.contact_email || 'admin@system.local',
+        featured: hostelData.featured || false
       };
 
       const { data, error } = await supabase
@@ -127,6 +131,35 @@ export const useUpdateHostel = () => {
       toast({
         title: "Hostel Updated",
         description: "The hostel has been updated successfully.",
+      });
+    }
+  });
+};
+
+export const useToggleFeature = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
+      const { data, error } = await supabase
+        .from('hostels')
+        .update({ featured })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
+      toast({
+        title: data.featured ? "Hostel Featured" : "Feature Removed",
+        description: data.featured 
+          ? "This hostel will now appear at the top of the homepage." 
+          : "This hostel will no longer be featured.",
       });
     }
   });

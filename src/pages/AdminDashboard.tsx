@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus, Edit } from "lucide-react";
+import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus, Edit, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAllHostels, useDeleteHostel } from "@/hooks/useAdminData";
+import { useAllHostels, useDeleteHostel, useToggleFeature } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
 import AdminHostelForm from "@/components/AdminHostelForm";
 import EditHostelDialog from "@/components/EditHostelDialog";
@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   const [editingHostel, setEditingHostel] = useState<any>(null);
   const { data: hostels, isLoading } = useAllHostels();
   const deleteHostel = useDeleteHostel();
+  const toggleFeature = useToggleFeature();
   const isMobile = useIsMobile();
 
   const allRooms = (hostels || []).flatMap((hostel: any) => 
@@ -36,6 +37,10 @@ const AdminDashboard = () => {
     if (confirm('Are you sure you want to delete this hostel? This action cannot be undone.')) {
       deleteHostel.mutate(hostelId);
     }
+  };
+
+  const handleToggleFeature = (hostelId: string, currentFeatured: boolean) => {
+    toggleFeature.mutate({ id: hostelId, featured: !currentFeatured });
   };
 
   const filteredHostels = (hostels || []).filter((hostel: any) =>
@@ -222,7 +227,15 @@ const AdminDashboard = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                             <h3 className="text-sm sm:text-xl font-semibold text-gray-800 truncate">{hostel.name}</h3>
-                            <Badge className="bg-green-100 text-green-800 w-fit text-xs">Active</Badge>
+                            <div className="flex gap-2">
+                              <Badge className="bg-green-100 text-green-800 w-fit text-xs">Active</Badge>
+                              {hostel.featured && (
+                                <Badge className="bg-yellow-100 text-yellow-800 w-fit text-xs">
+                                  <Star className="h-3 w-3 mr-1" />
+                                  Featured
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                           <p className="text-gray-600 mb-2 sm:mb-3 text-xs sm:text-base">{hostel.location}</p>
                           <p className="text-gray-700 mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-base">{hostel.description}</p>
@@ -289,6 +302,16 @@ const AdminDashboard = () => {
                         >
                           <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Edit
+                        </Button>
+                        <Button 
+                          variant={hostel.featured ? "default" : "outline"}
+                          size="sm"
+                          className={`text-xs ${hostel.featured ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
+                          onClick={() => handleToggleFeature(hostel.id, hostel.featured)}
+                          disabled={toggleFeature.isPending}
+                        >
+                          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                          {hostel.featured ? 'Unfeature' : 'Feature'}
                         </Button>
                         <AddRoomDialog 
                           hostelId={hostel.id} 

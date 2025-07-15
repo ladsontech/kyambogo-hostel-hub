@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Wifi, Shield, Car, Users } from "lucide-react";
+import { MapPin, Phone, Wifi, Shield, Car, Users, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { generateWhatsAppLink } from "@/utils/mockData";
 import { Hostel } from "@/types/hostel";
@@ -50,13 +50,19 @@ const HostelCard = ({ hostel }: HostelCardProps) => {
             <span className="text-gray-400">No image available</span>
           </div>
         )}
-        {lowestPrice && (
-          <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 flex flex-col gap-2">
+          {hostel.featured && (
+            <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
+              <Star className="h-3 w-3 mr-1" />
+              Featured
+            </Badge>
+          )}
+          {lowestPrice && (
             <Badge className="bg-green-600 hover:bg-green-700 text-white">
               From {lowestPrice.toLocaleString()} UGX/{pricePeriod}
             </Badge>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
       <CardHeader className="pb-3">

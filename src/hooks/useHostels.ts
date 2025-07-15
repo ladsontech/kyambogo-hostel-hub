@@ -14,7 +14,9 @@ export const useHostels = () => {
         .select(`
           *,
           rooms(*)
-        `);
+        `)
+        .order('featured', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching hostels:', error);
@@ -49,7 +51,8 @@ export const useHostels = () => {
         contactEmail: hostel.contact_email || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
-        amenities: hostel.amenities || []
+        amenities: hostel.amenities || [],
+        featured: hostel.featured || false
       }));
 
       console.log('Mapped hostels:', mappedHostels);
@@ -106,7 +109,8 @@ export const useHostel = (id: string) => {
         contactEmail: (data as any).contact_email || '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
-        amenities: data.amenities || []
+        amenities: data.amenities || [],
+        featured: data.featured || false
       };
 
       console.log('Mapped single hostel:', hostel);

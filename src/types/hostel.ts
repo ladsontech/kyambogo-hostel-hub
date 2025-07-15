@@ -23,6 +23,7 @@ export interface Hostel {
   approved: boolean;
   createdAt: string;
   amenities?: string[];
+  featured?: boolean;
 }
 
 export const ROOM_TYPE_LABELS = {
