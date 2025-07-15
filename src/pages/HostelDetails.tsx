@@ -142,195 +142,204 @@ const HostelDetails = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-          {/* Main Content */}
-          <div className="xl:col-span-2 space-y-6">
-            {/* About Section */}
+        {/* Show apology message for hostels without rooms */}
+        {hasNoRooms ? (
+          <div className="max-w-4xl mx-auto">
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl text-gray-900 flex items-center">
-                  About This Hostel
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed text-lg">{hostel.description}</p>
+              <CardContent className="p-8">
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    We apologize, all rooms in {hostel.name} are currently occupied
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Please check back later or contact us for updates on availability.
+                  </p>
+                  <Button 
+                    onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Contact for Updates
+                  </Button>
+                </div>
               </CardContent>
             </Card>
-
-            {/* Amenities */}
-            {hostelAmenities.length > 0 && (
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+            {/* Main Content */}
+            <div className="xl:col-span-2 space-y-6">
+              {/* About Section */}
               <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-2xl text-gray-900">Amenities & Services</CardTitle>
+                  <CardTitle className="text-2xl text-gray-900 flex items-center">
+                    About This Hostel
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {hostelAmenities.map(amenity => {
-                      const IconComponent = amenity.icon === 'Wifi' ? Wifi : amenity.icon === 'Car' ? Car : amenity.icon === 'Shield' ? Shield : Coffee;
-                      return (
-                        <div key={amenity.id} className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                          <IconComponent className="h-5 w-5 text-green-600" />
-                          <span className="text-sm font-medium text-gray-700">{amenity.name}</span>
+                  <p className="text-gray-700 leading-relaxed text-lg">{hostel.description}</p>
+                </CardContent>
+              </Card>
+
+              {/* Amenities */}
+              {hostelAmenities.length > 0 && (
+                <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-2xl text-gray-900">Amenities & Services</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {hostelAmenities.map(amenity => {
+                        const IconComponent = amenity.icon === 'Wifi' ? Wifi : amenity.icon === 'Car' ? Car : amenity.icon === 'Shield' ? Shield : Coffee;
+                        return (
+                          <div key={amenity.id} className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                            <IconComponent className="h-5 w-5 text-green-600" />
+                            <span className="text-sm font-medium text-gray-700">{amenity.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Room Types or No Rooms Message */}
+              <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl text-gray-900">Room Availability</CardTitle>
+                </CardHeader>
+                <CardContent className="p-3">
+                  {allRoomsOccupied ? (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin className="h-8 w-8 text-orange-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                        We apologize, all rooms in {hostel.name} are currently occupied
+                      </h3>
+                      <p className="text-gray-600 mb-6">
+                        All room types are currently fully booked. Please contact us to be notified when rooms become available.
+                      </p>
+                      <Button 
+                        onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Join Waiting List
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {hostel.roomTypes.map(room => (
+                        <div key={room.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 bg-white">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                            <h3 className="text-xl font-bold text-gray-900 mb-2 sm:mb-0">
+                              {ROOM_TYPE_LABELS[room.type]}
+                            </h3>
+                            <div className="text-right">
+                              <div className="text-2xl lg:text-3xl font-bold text-green-600">
+                                {room.price.toLocaleString()} UGX
+                              </div>
+                              <div className="text-sm text-gray-500">per {room.pricePeriod}</div>
+                            </div>
+                          </div>
+                          
+                          {/* Room Images */}
+                          {room.images && room.images.length > 0 && (
+                            <div className="mb-4">
+                              <SimpleImageCarousel images={room.images} />
+                            </div>
+                          )}
+                          
+                          <p className="text-gray-600 mb-3 leading-relaxed">{room.description}</p>
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                            <Badge className={`
+                                text-sm px-3 py-1 font-medium
+                                ${room.availableRooms > 0 ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800'}
+                              `}>
+                              {room.availableRooms > 0 ? `${room.availableRooms} Available` : 'Fully Booked'}
+                            </Badge>
+                            <Button 
+                              size="lg" 
+                              disabled={room.availableRooms === 0} 
+                              onClick={() => window.open(generateWhatsAppLink(hostel.name, ROOM_TYPE_LABELS[room.type]), '_blank')} 
+                              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-6"
+                            >
+                              Book Now
+                            </Button>
+                          </div>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Enhanced Sidebar - Only show when hostel has rooms */}
+            <div className="space-y-6">
+              {/* Contact Card */}
+              <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm sticky top-24">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-gray-900 flex items-center">
+                    <Phone className="h-5 w-5 mr-2 text-green-600" />
+                    Contact Owner
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700 h-12 text-base font-medium" 
+                      onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
+                    >
+                      Contact via WhatsApp
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-12 text-base font-medium border-2 hover:bg-gray-50" 
+                      onClick={() => window.open(`tel:${callPhoneNumber}`, '_blank')}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Call Now
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            )}
 
-            {/* Room Types or No Rooms Message */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl text-gray-900">Room Availability</CardTitle>
-              </CardHeader>
-              <CardContent className="p-3">
-                {hasNoRooms ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      We apologize, all rooms in {hostel.name} are currently occupied
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Please check back later or contact us for updates on availability.
-                    </p>
-                    <Button 
-                      onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Contact for Updates
-                    </Button>
+              {/* Quick Info Card */}
+              <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-gray-900">Quick Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Room Types:</span>
+                    <span className="font-bold text-gray-900">{hostel.roomTypes.length}</span>
                   </div>
-                ) : allRoomsOccupied ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MapPin className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      We apologize, all rooms in {hostel.name} are currently occupied
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      All room types are currently fully booked. Please contact us to be notified when rooms become available.
-                    </p>
-                    <Button 
-                      onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Join Waiting List
-                    </Button>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Available Rooms:</span>
+                    <span className="font-bold text-green-600">
+                      {hostel.roomTypes.reduce((sum, room) => sum + room.availableRooms, 0)}
+                    </span>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {hostel.roomTypes.map(room => (
-                      <div key={room.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300 bg-white">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 sm:mb-0">
-                            {ROOM_TYPE_LABELS[room.type]}
-                          </h3>
-                          <div className="text-right">
-                            <div className="text-2xl lg:text-3xl font-bold text-green-600">
-                              {room.price.toLocaleString()} UGX
-                            </div>
-                            <div className="text-sm text-gray-500">per {room.pricePeriod}</div>
-                          </div>
+                  {hostel.roomTypes.length > 0 && (
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-gray-600 font-medium">Price Range:</span>
+                      <div className="text-right">
+                        <div className="font-bold text-gray-900">
+                          {Math.min(...hostel.roomTypes.map(r => r.price)).toLocaleString()} - {Math.max(...hostel.roomTypes.map(r => r.price)).toLocaleString()}
                         </div>
-                        
-                        {/* Room Images */}
-                        {room.images && room.images.length > 0 && (
-                          <div className="mb-4">
-                            <SimpleImageCarousel images={room.images} />
-                          </div>
-                        )}
-                        
-                        <p className="text-gray-600 mb-3 leading-relaxed">{room.description}</p>
-                        
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                          <Badge className={`
-                              text-sm px-3 py-1 font-medium
-                              ${room.availableRooms > 0 ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800'}
-                            `}>
-                            {room.availableRooms > 0 ? `${room.availableRooms} Available` : 'Fully Booked'}
-                          </Badge>
-                          <Button 
-                            size="lg" 
-                            disabled={room.availableRooms === 0} 
-                            onClick={() => window.open(generateWhatsAppLink(hostel.name, ROOM_TYPE_LABELS[room.type]), '_blank')} 
-                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-6"
-                          >
-                            Book Now
-                          </Button>
-                        </div>
+                        <div className="text-xs text-gray-500">UGX</div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Enhanced Sidebar */}
-          <div className="space-y-6">
-            {/* Contact Card */}
-            <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm sticky top-24">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl text-gray-900 flex items-center">
-                  <Phone className="h-5 w-5 mr-2 text-green-600" />
-                  Contact Owner
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700 h-12 text-base font-medium" 
-                    onClick={() => window.open(generateWhatsAppLink(hostel.name), '_blank')}
-                  >
-                    Contact via WhatsApp
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 text-base font-medium border-2 hover:bg-gray-50" 
-                    onClick={() => window.open(`tel:${callPhoneNumber}`, '_blank')}
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    Call Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Info Card */}
-            <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl text-gray-900">Quick Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Room Types:</span>
-                  <span className="font-bold text-gray-900">{hostel.roomTypes.length}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Available Rooms:</span>
-                  <span className="font-bold text-green-600">
-                    {hostel.roomTypes.reduce((sum, room) => sum + room.availableRooms, 0)}
-                  </span>
-                </div>
-                {hostel.roomTypes.length > 0 && (
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600 font-medium">Price Range:</span>
-                    <div className="text-right">
-                      <div className="font-bold text-gray-900">
-                        {Math.min(...hostel.roomTypes.map(r => r.price)).toLocaleString()} - {Math.max(...hostel.roomTypes.map(r => r.price)).toLocaleString()}
-                      </div>
-                      <div className="text-xs text-gray-500">UGX</div>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
