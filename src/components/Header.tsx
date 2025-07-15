@@ -56,10 +56,7 @@ export const Header = () => {
               Need Help?
             </Button>
             <Link to="/owner" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="default" size="sm" className="w-full justify-start bg-blue-600 hover:bg-blue-700">
-                <Building2 className="h-4 w-4 mr-2" />
-                Owner Portal
-              </Button>
+              
             </Link>
           </nav>
         </div>}
