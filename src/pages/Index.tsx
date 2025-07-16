@@ -5,7 +5,7 @@ import { SearchFilters } from "@/components/SearchFilters";
 import HostelCard from "@/components/HostelCard";
 import ImageCarousel from "@/components/ImageCarousel";
 import { useHostels } from "@/hooks/useHostels";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin, Users, Shield, Star } from "lucide-react";
 
 const Index = () => {
   console.log("Index component rendering");
@@ -72,21 +72,71 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <Header />
       
       <main className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-        {/* Hero Section */}
-        <div className="text-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 md:mb-3">
-            Find Your Perfect
-            <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text block sm:inline text-blue-800">
-              {" "}Kyambogo Hostel
-            </span>
-          </h1>
-          <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6 max-w-2xl mx-auto">
-            Discover comfortable, affordable, and convenient student hostels near Kyambogo University.
-          </p>
+        {/* Enhanced Hero Section */}
+        <div className="relative text-center mb-8 md:mb-12 py-8 md:py-16">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-blue-500/10 to-blue-600/5 rounded-3xl md:rounded-[3rem]"></div>
+          
+          {/* Floating decorative elements */}
+          <div className="absolute top-4 left-4 md:top-8 md:left-8 w-16 h-16 md:w-24 md:h-24 bg-blue-200/30 rounded-full blur-xl"></div>
+          <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 w-20 h-20 md:w-32 md:h-32 bg-blue-300/20 rounded-full blur-xl"></div>
+          
+          <div className="relative z-10 max-w-4xl mx-auto px-4">
+            {/* Main heading with enhanced styling */}
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-3 md:mb-4">
+                <span className="text-gray-800 block mb-2">Find Your Perfect</span>
+                <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent inline-block">
+                  Kyambogo Hostel
+                </span>
+              </h1>
+              
+              {/* Decorative underline */}
+              <div className="flex justify-center mb-4 md:mb-6">
+                <div className="w-24 md:w-32 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+              </div>
+            </div>
+
+            {/* Enhanced description */}
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto">
+              Discover comfortable, affordable, and convenient student hostels near Kyambogo University. 
+              <span className="hidden md:inline"> Your perfect home away from home awaits.</span>
+            </p>
+
+            {/* Feature highlights */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+                <MapPin className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700">Prime Locations</span>
+              </div>
+              
+              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+                <Shield className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700">Secure & Safe</span>
+              </div>
+              
+              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+                <Users className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700">Community</span>
+              </div>
+              
+              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+                <Star className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700">Top Rated</span>
+              </div>
+            </div>
+
+            {/* Call to action hint */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50/80 backdrop-blur-sm text-blue-700 rounded-full text-sm font-medium">
+              <span>↓</span>
+              <span className="hidden sm:inline">Explore hostels below</span>
+              <span className="sm:hidden">Explore below</span>
+            </div>
+          </div>
         </div>
 
         {/* Image Carousel Section */}
