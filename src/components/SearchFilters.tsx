@@ -28,25 +28,25 @@ export const SearchFilters = ({
   const hasActiveFilters = searchTerm || selectedRoomType !== 'all' || priceRange !== 'all';
 
   return (
-    <Card className="p-6 mb-8 shadow-lg border-0">
-      <div className="flex items-center gap-2 mb-4">
-        <Filter className="h-5 w-5 text-green-600" />
-        <h3 className="text-lg font-semibold text-gray-800">Find Your Perfect Hostel</h3>
+    <Card className="p-4 md:p-5 mb-6 shadow-sm border-0 bg-white/90 backdrop-blur-sm">
+      <div className="flex items-center gap-2 mb-3">
+        <Filter className="h-4 w-4 text-green-600" />
+        <h3 className="text-base font-semibold text-gray-800">Find Your Perfect Hostel</h3>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
           <Input
             placeholder="Search hostels or locations..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 border-gray-200 focus:border-green-500 focus:ring-green-500"
+            className="pl-9 border-gray-200 focus:border-green-500 focus:ring-green-500 h-9 text-sm"
           />
         </div>
         
         <Select value={selectedRoomType} onValueChange={setSelectedRoomType}>
-          <SelectTrigger className="border-gray-200 focus:border-green-500 focus:ring-green-500">
+          <SelectTrigger className="border-gray-200 focus:border-green-500 focus:ring-green-500 h-9 text-sm">
             <SelectValue placeholder="Room Type" />
           </SelectTrigger>
           <SelectContent>
@@ -58,7 +58,7 @@ export const SearchFilters = ({
         </Select>
         
         <Select value={priceRange} onValueChange={setPriceRange}>
-          <SelectTrigger className="border-gray-200 focus:border-green-500 focus:ring-green-500">
+          <SelectTrigger className="border-gray-200 focus:border-green-500 focus:ring-green-500 h-9 text-sm">
             <SelectValue placeholder="Price Range" />
           </SelectTrigger>
           <SelectContent>
@@ -74,9 +74,10 @@ export const SearchFilters = ({
           <Button 
             variant="outline" 
             onClick={onClearFilters}
-            className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+            size="sm"
+            className="flex items-center gap-2 hover:bg-red-50 hover:border-red-300 hover:text-red-600 h-9 text-sm"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
             Clear Filters
           </Button>
         )}
