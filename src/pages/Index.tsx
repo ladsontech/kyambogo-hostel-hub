@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
 import HostelCard from "@/components/HostelCard";
 import ImageCarousel from "@/components/ImageCarousel";
 import { useHostels } from "@/hooks/useHostels";
-import { Loader2, MapPin, Users, Shield, Star, Smartphone, Zap, ExternalLink } from "lucide-react";
+import { Loader2, MapPin, Users, Shield, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
 const Index = () => {
   console.log("Index component rendering");
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,86 +121,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Featured App Section - Flamia */}
-        <div className="mb-8 md:mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-2xl md:rounded-3xl p-6 md:p-8">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-20 -translate-y-20"></div>
-              <div className="absolute bottom-0 right-0 w-60 h-60 bg-white rounded-full translate-x-30 translate-y-30"></div>
-            </div>
-            
-            <div className="relative z-10">
-              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-                {/* Content Side */}
-                <div className="text-center lg:text-left">
-                  {/* Logo and Badge */}
-                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-                    <Avatar className="h-12 w-12 md:h-16 md:w-16 bg-white shadow-lg">
-                      <AvatarImage src="/images/flamia_logo.png" alt="Flamia Logo" className="object-cover" />
-                    </Avatar>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-                        Flamia
-                      </h2>
-                      
-                    </div>
-                  </div>
-
-                  {/* Headline */}
-                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4">
-                    Your Campus Essential App
-                  </h3>
-                  
-                  {/* Description */}
-                  <p className="text-orange-100 text-base md:text-lg mb-6 leading-relaxed">
-                    The #1 app for gas refilling, phone top-ups, and laptop services at Kyambogo University. 
-                    Fast, reliable, and trusted by thousands of students.
-                  </p>
-
-                  {/* Features */}
-                  
-
-                  {/* CTA Button */}
-                  <Button asChild className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    <a href="https://flamia.store" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                      Visit Flamia Store
-                      <ExternalLink className="h-5 w-5" />
-                    </a>
-                  </Button>
-                </div>
-
-                {/* Screenshots Side */}
-                <div className="relative">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Gas Screenshot */}
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
-                      <div className="absolute bottom-2 left-2 z-20">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                          Gas Services
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Phones Screenshot */}
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
-                      <div className="absolute bottom-2 left-2 z-20">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                          Tech Services
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Image Carousel Section */}
         <div className="mb-6 md:mb-8">
           <ImageCarousel />
@@ -232,7 +154,78 @@ const Index = () => {
             </h3>
             <p className="text-gray-500 text-sm">Try adjusting your search criteria</p>
           </div>}
+
+        {/* Featured App Section - Flamia */}
+        <div className="mt-12 mb-8 md:mb-12">
+          <div className="relative overflow-hidden bg-orange-500 rounded-2xl md:rounded-3xl p-6 md:p-8">
+            <div className="relative z-10">
+              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+                {/* Content Side */}
+                <div className="text-center lg:text-left">
+                  {/* Logo and Badge */}
+                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                    <Avatar className="h-12 w-12 md:h-16 md:w-16 bg-white shadow-lg">
+                      <AvatarImage src="/images/flamia_logo.png" alt="Flamia Logo" className="object-cover" />
+                    </Avatar>
+                    <div>
+                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
+                        Flamia
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Headline */}
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4">
+                    Your Campus Essential App
+                  </h3>
+                  
+                  {/* Description */}
+                  <p className="text-orange-100 text-base md:text-lg mb-6 leading-relaxed">
+                    The #1 app for gas refilling, phone top-ups, and laptop services at Kyambogo University. 
+                    Fast, reliable, and trusted by thousands of students.
+                  </p>
+
+                  {/* CTA Button */}
+                  <Button asChild className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    <a href="https://flamia.store" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                      Visit Flamia Store
+                      <ExternalLink className="h-5 w-5" />
+                    </a>
+                  </Button>
+                </div>
+
+                {/* Screenshots Side */}
+                <div className="relative">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Gas Screenshot */}
+                    <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store', '_blank')}>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
+                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <div className="absolute bottom-2 left-2 z-20">
+                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                          Gas Services
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Phones Screenshot */}
+                    <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store/gadgets', '_blank')}>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
+                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <div className="absolute bottom-2 left-2 z-20">
+                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                          Tech Services
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>;
 };
+
 export default Index;
