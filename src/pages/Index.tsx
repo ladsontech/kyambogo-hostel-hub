@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
@@ -168,9 +167,9 @@ const Index = () => {
 
         {/* Featured App Section - Flamia */}
         <div className="mb-8 md:mb-12">
-          <div className="relative overflow-hidden bg-orange-500 rounded-2xl md:rounded-3xl p-6 md:p-8">
+          <div className="relative overflow-hidden bg-orange-500 rounded-2xl md:rounded-3xl p-4 md:p-8">
             <div className="relative z-10">
-              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+              <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center">
                 {/* Content Side */}
                 <div className="text-center lg:text-left">
                   {/* Logo and Badge */}
@@ -204,11 +203,11 @@ const Index = () => {
 
                 {/* Screenshots Side */}
                 <div className="relative">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                     {/* Gas Screenshot */}
                     <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store', '_blank')}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-xl z-10"></div>
+                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-56 sm:h-64 md:h-72 lg:h-80 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Gas Services
@@ -218,8 +217,8 @@ const Index = () => {
 
                     {/* Phones Screenshot */}
                     <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store/gadgets', '_blank')}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-xl z-10"></div>
+                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-56 sm:h-64 md:h-72 lg:h-80 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Tech Services
