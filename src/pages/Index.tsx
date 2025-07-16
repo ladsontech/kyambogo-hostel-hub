@@ -54,7 +54,7 @@ const Index = () => {
   if (error) {
     console.error("Error loading hostels:", error);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-50">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
@@ -72,7 +72,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-50">
       <Header />
       
       <main className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
@@ -80,7 +80,7 @@ const Index = () => {
         <div className="text-center mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 md:mb-3">
             Find Your Perfect
-            <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text block sm:inline text-blue-800">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text block sm:inline text-blue-800">
               {" "}Kyambogo Hostel
             </span>
           </h1>
@@ -121,7 +121,7 @@ const Index = () => {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
             <span className="ml-2 text-gray-600 text-sm">Loading hostels...</span>
           </div>
         ) : (

@@ -14,6 +14,7 @@ import Autoplay from "embla-carousel-autoplay";
 const ImageCarousel = () => {
   const { data: images, isLoading } = useCarouselImages();
   const [api, setApi] = useState<any>();
+  const [current, setCurrent] = useState(0);
 
   // Auto-play functionality
   const autoplay = Autoplay({
@@ -21,17 +22,32 @@ const ImageCarousel = () => {
     stopOnInteraction: true,
   });
 
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    onSelect();
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-48 md:h-56 bg-gray-100 rounded-lg">
-        <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+        <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
       </div>
     );
   }
 
   if (!images || images.length === 0) {
     return (
-      <div className="flex justify-center items-center h-48 md:h-56 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg">
+      <div className="flex justify-center items-center h-48 md:h-56 bg-gradient-to-r from-blue-100 to-blue-100 rounded-lg">
         <p className="text-gray-600 text-sm">No carousel images available</p>
       </div>
     );
@@ -46,11 +62,12 @@ const ImageCarousel = () => {
         opts={{
           align: "start",
           loop: true,
+          slidesToScroll: 1,
         }}
       >
-        <CarouselContent>
+        <CarouselContent className="-ml-2 md:-ml-4">
           {images.map((image, index) => (
-            <CarouselItem key={image.id}>
+            <CarouselItem key={image.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
               <div className="relative">
                 <img
                   src={image.image_url}
@@ -62,8 +79,8 @@ const ImageCarousel = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-2 h-8 w-8" />
-        <CarouselNext className="right-2 h-8 w-8" />
+        <CarouselPrevious className="left-2 h-8 w-8 bg-white/90 hover:bg-white border border-gray-200" />
+        <CarouselNext className="right-2 h-8 w-8 bg-white/90 hover:bg-white border border-gray-200" />
       </Carousel>
       
       {/* Dots indicator */}
@@ -71,7 +88,12 @@ const ImageCarousel = () => {
         {images.map((_, index) => (
           <button
             key={index}
-            className="w-1.5 h-1.5 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors"
+            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+              Math.floor(current * (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1) / images.length) === 
+              Math.floor(index * (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1) / images.length)
+                ? 'bg-blue-500' 
+                : 'bg-gray-300 hover:bg-gray-400'
+            }`}
             onClick={() => api?.scrollTo(index)}
           />
         ))}

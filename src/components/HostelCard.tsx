@@ -56,7 +56,7 @@ const HostelCard = ({ hostel }: HostelCardProps) => {
             </Badge>
           )}
           {lowestPrice && (
-            <Badge className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1">
+            <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1">
               From {lowestPrice.toLocaleString()} UGX/{pricePeriod}
             </Badge>
           )}
