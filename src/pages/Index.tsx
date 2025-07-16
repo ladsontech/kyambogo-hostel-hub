@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
@@ -8,7 +7,6 @@ import { useHostels } from "@/hooks/useHostels";
 import { Loader2, MapPin, Users, Shield, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
 const Index = () => {
   console.log("Index component rendering");
   const [searchTerm, setSearchTerm] = useState("");
@@ -180,10 +178,7 @@ const Index = () => {
                   </h3>
                   
                   {/* Description */}
-                  <p className="text-orange-100 text-base md:text-lg mb-6 leading-relaxed">
-                    The #1 app for gas refilling, phone top-ups, and laptop services at Kyambogo University. 
-                    Fast, reliable, and trusted by thousands of students.
-                  </p>
+                  <p className="text-orange-100 text-base md:text-lg mb-6 leading-relaxed">The #1 app for gas refilling, gas full kits, smart phones and laptop services at Kyambogo University. Fast, reliable, and trusted by thousands of students.</p>
 
                   {/* CTA Button */}
                   <Button asChild className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
@@ -227,5 +222,4 @@ const Index = () => {
       </main>
     </div>;
 };
-
 export default Index;
