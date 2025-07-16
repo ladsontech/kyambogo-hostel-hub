@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
@@ -8,7 +7,6 @@ import { useHostels } from "@/hooks/useHostels";
 import { Loader2, MapPin, Users, Shield, Star, Smartphone, Zap, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
 const Index = () => {
   console.log("Index component rendering");
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +20,6 @@ const Index = () => {
   console.log("Hostels data:", hostels);
   console.log("Loading state:", isLoading);
   console.log("Error state:", error);
-
   const filteredHostels = hostels?.filter(hostel => {
     const matchesSearch = hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) || hostel.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRoomType = selectedRoomType === 'all' || hostel.roomTypes.some(room => room.type === selectedRoomType);
@@ -40,13 +37,11 @@ const Index = () => {
     }
     return matchesSearch && matchesRoomType && matchesPrice;
   });
-
   const handleClearFilters = () => {
     setSearchTerm("");
     setSelectedRoomType("all");
     setPriceRange("all");
   };
-
   if (error) {
     console.error("Error loading hostels:", error);
     return <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-50">
@@ -64,7 +59,6 @@ const Index = () => {
         </div>
       </div>;
   }
-
   return <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <Header />
       
@@ -141,11 +135,7 @@ const Index = () => {
                   {/* Logo and Badge */}
                   <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
                     <Avatar className="h-12 w-12 md:h-16 md:w-16 bg-white shadow-lg">
-                      <AvatarImage 
-                        src="/images/flamia_logo.png" 
-                        alt="Flamia Logo"
-                        className="object-cover"
-                      />
+                      <AvatarImage src="/images/flamia_logo.png" alt="Flamia Logo" className="object-cover" />
                     </Avatar>
                     <div>
                       <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
@@ -170,32 +160,11 @@ const Index = () => {
                   </p>
 
                   {/* Features */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                    <div className="flex items-center gap-3 text-orange-100">
-                      <div className="p-2 bg-white/20 rounded-lg">
-                        <Zap className="h-5 w-5 text-yellow-300" />
-                      </div>
-                      <span className="text-sm md:text-base">Gas Refilling</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-orange-100">
-                      <div className="p-2 bg-white/20 rounded-lg">
-                        <Smartphone className="h-5 w-5 text-orange-200" />
-                      </div>
-                      <span className="text-sm md:text-base">Phone Top-ups</span>
-                    </div>
-                  </div>
+                  
 
                   {/* CTA Button */}
-                  <Button 
-                    asChild
-                    className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  >
-                    <a 
-                      href="https://flamia.store" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2"
-                    >
+                  <Button asChild className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    <a href="https://flamia.store" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                       Visit Flamia Store
                       <ExternalLink className="h-5 w-5" />
                     </a>
@@ -208,11 +177,7 @@ const Index = () => {
                     {/* Gas Screenshot */}
                     <div className="relative group">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img 
-                        src="/images/gas_screenshot.png" 
-                        alt="Gas Refilling Service" 
-                        className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300"
-                      />
+                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Gas Services
@@ -223,11 +188,7 @@ const Index = () => {
                     {/* Phones Screenshot */}
                     <div className="relative group">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img 
-                        src="/images/phones_screenshot.png" 
-                        alt="Phone and Laptop Services" 
-                        className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300"
-                      />
+                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-32 sm:h-40 md:h-48 lg:h-56 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Tech Services
@@ -277,5 +238,4 @@ const Index = () => {
       </main>
     </div>;
 };
-
 export default Index;
