@@ -141,10 +141,7 @@ const Index = () => {
                       <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
                         Flamia
                       </h2>
-                      <div className="flex items-center justify-center lg:justify-start gap-1 mt-1">
-                        <Star className="h-4 w-4 text-yellow-300 fill-current" />
-                        <span className="text-yellow-200 text-sm font-medium">#1 at Kyambogo</span>
-                      </div>
+                      
                     </div>
                   </div>
 
