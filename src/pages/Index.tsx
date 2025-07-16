@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
@@ -7,6 +8,7 @@ import { useHostels } from "@/hooks/useHostels";
 import { Loader2, MapPin, Users, Shield, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
 const Index = () => {
   console.log("Index component rendering");
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,9 +19,11 @@ const Index = () => {
     isLoading,
     error
   } = useHostels();
+  
   console.log("Hostels data:", hostels);
   console.log("Loading state:", isLoading);
   console.log("Error state:", error);
+  
   const filteredHostels = hostels?.filter(hostel => {
     const matchesSearch = hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) || hostel.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRoomType = selectedRoomType === 'all' || hostel.roomTypes.some(room => room.type === selectedRoomType);
@@ -37,11 +41,17 @@ const Index = () => {
     }
     return matchesSearch && matchesRoomType && matchesPrice;
   });
+
+  // Separate featured and unfeatured hostels
+  const featuredHostels = filteredHostels?.filter(hostel => hostel.featured) || [];
+  const unfeaturedHostels = filteredHostels?.filter(hostel => !hostel.featured) || [];
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setSelectedRoomType("all");
     setPriceRange("all");
   };
+
   if (error) {
     console.error("Error loading hostels:", error);
     return <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-50">
@@ -59,6 +69,7 @@ const Index = () => {
         </div>
       </div>;
   }
+
   return <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <Header />
       
@@ -129,32 +140,34 @@ const Index = () => {
           <SearchFilters searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedRoomType={selectedRoomType} setSelectedRoomType={setSelectedRoomType} priceRange={priceRange} setPriceRange={setPriceRange} onClearFilters={handleClearFilters} />
         </div>
 
-        {/* Results */}
-        <div className="mb-4">
-          <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2">
-            Available Hostels
-            {filteredHostels && <span className="text-sm md:text-base font-normal text-gray-600 ml-2 block sm:inline">
-                ({filteredHostels.length} hostels found)
-              </span>}
-          </h2>
-        </div>
-
-        {isLoading ? <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600 text-sm">Loading hostels...</span>
-          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
-            {filteredHostels?.map(hostel => <HostelCard key={hostel.id} hostel={hostel} />)}
-          </div>}
-
-        {filteredHostels?.length === 0 && !isLoading && <div className="text-center py-12">
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">
-              No hostels found
-            </h3>
-            <p className="text-gray-500 text-sm">Try adjusting your search criteria</p>
-          </div>}
+        {/* Featured Hostels Section */}
+        {featuredHostels.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">
+              <Star className="h-5 w-5 text-yellow-500 inline mr-2" />
+              Featured Hostels
+              <span className="text-sm md:text-base font-normal text-gray-600 ml-2 block sm:inline">
+                ({featuredHostels.length} featured hostels)
+              </span>
+            </h2>
+            
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                <span className="ml-2 text-gray-600 text-sm">Loading hostels...</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+                {featuredHostels.map(hostel => (
+                  <HostelCard key={hostel.id} hostel={hostel} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Featured App Section - Flamia */}
-        <div className="mt-12 mb-8 md:mb-12">
+        <div className="mb-8 md:mb-12">
           <div className="relative overflow-hidden bg-orange-500 rounded-2xl md:rounded-3xl p-6 md:p-8">
             <div className="relative z-10">
               <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
@@ -195,7 +208,7 @@ const Index = () => {
                     {/* Gas Screenshot */}
                     <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store', '_blank')}>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Gas Services
@@ -206,7 +219,7 @@ const Index = () => {
                     {/* Phones Screenshot */}
                     <div className="relative group cursor-pointer" onClick={() => window.open('https://flamia.store/gadgets', '_blank')}>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl z-10"></div>
-                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
+                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover rounded-xl shadow-2xl transition-transform duration-300" />
                       <div className="absolute bottom-2 left-2 z-20">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
                           Tech Services
@@ -219,7 +232,42 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* All Other Hostels Section */}
+        <div className="mb-4">
+          <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2">
+            Available Hostels
+            {unfeaturedHostels.length > 0 && (
+              <span className="text-sm md:text-base font-normal text-gray-600 ml-2 block sm:inline">
+                ({unfeaturedHostels.length} hostels found)
+              </span>
+            )}
+          </h2>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <span className="ml-2 text-gray-600 text-sm">Loading hostels...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+            {unfeaturedHostels.map(hostel => (
+              <HostelCard key={hostel.id} hostel={hostel} />
+            ))}
+          </div>
+        )}
+
+        {filteredHostels?.length === 0 && !isLoading && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">
+              No hostels found
+            </h3>
+            <p className="text-gray-500 text-sm">Try adjusting your search criteria</p>
+          </div>
+        )}
       </main>
     </div>;
 };
+
 export default Index;
