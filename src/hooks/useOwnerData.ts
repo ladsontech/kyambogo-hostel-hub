@@ -23,7 +23,7 @@ export const useOwnerProfile = () => {
         .maybeSingle();
 
       if (error) throw error;
-      
+
       // Return the contact info from their first hostel, or null if they have no hostels
       return data ? {
         name: data.contact_name || '',
@@ -133,7 +133,7 @@ export const useCreateOrUpdateHostel = () => {
         contact_name: hostelData.contact_name || '',
         contact_phone: hostelData.contact_phone || '',
         contact_email: hostelData.contact_email || user.email,
-        approved: true // Auto-approve for now
+        approved: false // Pending manual verification
       };
 
       if (existingHostel) {

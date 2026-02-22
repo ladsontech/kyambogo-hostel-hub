@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { SearchFilters } from "@/components/SearchFilters";
 import HostelCard from "@/components/HostelCard";
@@ -10,9 +11,25 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const Index = () => {
   console.log("Index component rendering");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [selectedRoomType, setSelectedRoomType] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
+  const [selectedUniversity, setSelectedUniversity] = useState("all");
+
+  useEffect(() => {
+    const query = searchParams.get("search") || "";
+    setSearchTerm(query);
+  }, [searchParams]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (value) {
+      setSearchParams({ search: value });
+    } else {
+      setSearchParams({});
+    }
+  };
   const {
     data: hostels,
     isLoading,
@@ -24,7 +41,13 @@ const Index = () => {
   console.log("Error state:", error);
   
   const filteredHostels = hostels?.filter(hostel => {
-    const matchesSearch = hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) || hostel.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      hostel.name.toLowerCase().includes(searchLower) || 
+      hostel.location.toLowerCase().includes(searchLower) ||
+      hostel.description.toLowerCase().includes(searchLower) ||
+      hostel.amenities?.some(a => a.toLowerCase().includes(searchLower));
+    
     const matchesRoomType = selectedRoomType === 'all' || hostel.roomTypes.some(room => room.type === selectedRoomType);
     let matchesPrice = true;
     if (priceRange !== 'all') {
@@ -38,7 +61,9 @@ const Index = () => {
         matchesPrice = hostel.roomTypes.some(room => room.price >= 500000);
       }
     }
-    return matchesSearch && matchesRoomType && matchesPrice;
+    // University filter: kyambogo shows all existing hostels, others show empty (future)
+    const matchesUniversity = selectedUniversity === 'all' || selectedUniversity === 'kyambogo' ? true : false;
+    return matchesSearch && matchesRoomType && matchesPrice && matchesUniversity;
   });
 
   // Separate featured and unfeatured hostels
@@ -49,6 +74,7 @@ const Index = () => {
     setSearchTerm("");
     setSelectedRoomType("all");
     setPriceRange("all");
+    setSelectedUniversity("all");
   };
 
   if (error) {
@@ -88,7 +114,7 @@ const Index = () => {
               <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-3 md:mb-4">
                 <span className="text-gray-800 block mb-2">Find Your Perfect</span>
                 <span className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent inline-block">
-                  Kyambogo Hostel
+                  University Hostel
                 </span>
               </h1>
               
@@ -100,32 +126,37 @@ const Index = () => {
 
             {/* Enhanced description */}
             <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto">
-              Discover comfortable, affordable, and convenient student hostels near Kyambogo University. 
+              Discover comfortable, affordable student hostels near your university.
               <span className="hidden md:inline"> Your perfect home away from home awaits.</span>
             </p>
 
             {/* Feature highlights */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+            <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 md:gap-6 mb-2 md:mb-8 pb-2 md:pb-4 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar snap-x snap-mandatory">
+              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
                 <MapPin className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
                 <span className="text-xs md:text-sm font-medium text-gray-700">Prime Locations</span>
               </div>
               
-              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
                 <Shield className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
                 <span className="text-xs md:text-sm font-medium text-gray-700">Secure & Safe</span>
               </div>
               
-              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
                 <Users className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
                 <span className="text-xs md:text-sm font-medium text-gray-700">Community</span>
               </div>
               
-              <div className="flex flex-col items-center p-3 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
                 <Star className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
                 <span className="text-xs md:text-sm font-medium text-gray-700">Top Rated</span>
               </div>
             </div>
+            
+            <style>{`
+              .no-scrollbar::-webkit-scrollbar { display: none; }
+              .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
           </div>
         </div>
 
@@ -136,7 +167,17 @@ const Index = () => {
 
         {/* Search and Filters */}
         <div className="mb-6">
-          <SearchFilters searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedRoomType={selectedRoomType} setSelectedRoomType={setSelectedRoomType} priceRange={priceRange} setPriceRange={setPriceRange} onClearFilters={handleClearFilters} />
+          <SearchFilters
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            selectedRoomType={selectedRoomType}
+            setSelectedRoomType={setSelectedRoomType}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            selectedUniversity={selectedUniversity}
+            setSelectedUniversity={setSelectedUniversity}
+            onClearFilters={handleClearFilters}
+          />
         </div>
 
         {/* Featured Hostels Section */}
@@ -165,72 +206,7 @@ const Index = () => {
           </div>
         )}
 
-        {/* Featured App Section - Flamia */}
-        <div className="mb-8 md:mb-12">
-          <div className="relative overflow-hidden bg-orange-500 rounded-2xl md:rounded-3xl p-2 sm:p-4 md:p-8">
-            <div className="relative z-10">
-              <div className="grid lg:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-center">
-                {/* Content Side */}
-                <div className="text-center lg:text-left p-2 sm:p-4 lg:p-0">
-                  {/* Logo and Badge */}
-                  <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-                    <Avatar className="h-12 w-12 md:h-16 md:w-16 bg-white shadow-lg">
-                      <AvatarImage src="/images/flamia_logo.png" alt="Flamia Logo" className="object-cover" />
-                    </Avatar>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-                        Flamia
-                      </h2>
-                    </div>
-                  </div>
-
-                  {/* Headline */}
-                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4">
-                    Your Campus Essential App
-                  </h3>
-                  
-                  {/* Description */}
-                  <p className="text-orange-100 text-base md:text-lg mb-6 leading-relaxed">The #1 app for gas refilling, gas full kits, smart phones and laptop services at Kyambogo University. Fast, reliable, and trusted by thousands of students.</p>
-
-                  {/* CTA Button */}
-                  <Button asChild className="bg-white text-orange-700 hover:bg-orange-50 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    <a href="https://flamia.store" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                      Visit Flamia Store
-                      <ExternalLink className="h-5 w-5" />
-                    </a>
-                  </Button>
-                </div>
-
-                {/* Screenshots Side */}
-                <div className="relative w-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
-                    {/* Gas Screenshot */}
-                    <div className="relative group cursor-pointer w-full" onClick={() => window.open('https://flamia.store', '_blank')}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-lg z-10"></div>
-                      <img src="/images/gas_screenshot.png" alt="Gas Refilling Service" className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-lg shadow-2xl transition-transform duration-300" />
-                      <div className="absolute bottom-2 left-2 z-20">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                          Gas Services
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Phones Screenshot */}
-                    <div className="relative group cursor-pointer w-full" onClick={() => window.open('https://flamia.store/gadgets', '_blank')}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-lg z-10"></div>
-                      <img src="/images/phones_screenshot.png" alt="Phone and Laptop Services" className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover rounded-lg shadow-2xl transition-transform duration-300" />
-                      <div className="absolute bottom-2 left-2 z-20">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                          Tech Services
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Removed Flamia Section per request */}
 
         {/* All Other Hostels Section */}
         <div className="mb-4">

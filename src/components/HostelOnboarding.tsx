@@ -34,6 +34,8 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
     amenities: existingHostel?.amenities || []
   });
   
+  const [step, setStep] = useState(1);
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -69,7 +71,7 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
             contact_name: 'Owner',
             contact_phone: 'Unknown',
             contact_email: 'owner@example.com',
-            approved: true
+            approved: false
           } as any])
           .select()
           .single();
@@ -178,91 +180,134 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label>Hostel Name</Label>
-              <Input 
-                placeholder="Green Valley Hostel" 
-                value={hostelData.name}
-                onChange={(e) => setHostelData({...hostelData, name: e.target.value})}
-                required 
-              />
+            {/* Step Indicators */}
+            <div className="flex items-center justify-center space-x-2 mb-6">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${step === s ? 'bg-green-600 text-white' : step > s ? 'bg-green-200 text-green-800' : 'bg-gray-100 text-gray-400'}`}>
+                    {s}
+                  </div>
+                  {s < 3 && <div className={`w-12 h-1 transition-colors ${step > s ? 'bg-green-200' : 'bg-gray-100'}`} />}
+                </div>
+              ))}
             </div>
 
-            <div className="space-y-2">
-              <Label>Location</Label>
-              <Input 
-                placeholder="Banda, Near Kyambogo University" 
-                value={hostelData.location}
-                onChange={(e) => setHostelData({...hostelData, location: e.target.value})}
-                required 
-              />
-            </div>
+            {step === 1 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="space-y-2">
+                  <Label>Hostel Name</Label>
+                  <Input 
+                    placeholder="Green Valley Hostel" 
+                    value={hostelData.name}
+                    onChange={(e) => setHostelData({...hostelData, name: e.target.value})}
+                    required 
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea 
-                placeholder="Describe your hostel, its amenities, and what makes it special..."
-                rows={4}
-                value={hostelData.description}
-                onChange={(e) => setHostelData({...hostelData, description: e.target.value})}
-                required 
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <Input 
+                    placeholder="Banda, Near Kyambogo University" 
+                    value={hostelData.location}
+                    onChange={(e) => setHostelData({...hostelData, location: e.target.value})}
+                    required 
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label>Amenities</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {AVAILABLE_AMENITIES.map((amenity) => {
-                  const IconComponent = getAmenityIcon(amenity.icon);
-                  return (
-                    <div key={amenity.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={amenity.id}
-                        checked={hostelData.amenities.includes(amenity.id)}
-                        onCheckedChange={(checked) => 
-                          handleAmenityChange(amenity.id, checked as boolean)
-                        }
-                      />
-                      <div className="flex items-center space-x-2">
-                        <IconComponent className="h-4 w-4 text-green-600" />
-                        <Label htmlFor={amenity.id} className="text-sm">
-                          {amenity.name}
-                        </Label>
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea 
+                    placeholder="Describe your hostel, its amenities, and what makes it special..."
+                    rows={4}
+                    value={hostelData.description}
+                    onChange={(e) => setHostelData({...hostelData, description: e.target.value})}
+                    required 
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      if (!hostelData.name || !hostelData.location || !hostelData.description) {
+                        toast({ title: "Validation Error", description: "Please fill all fields", variant: "destructive" });
+                        return;
+                      }
+                      setStep(2);
+                    }}
+                    className="bg-green-600 hover:bg-green-700 min-w-32"
+                  >
+                    Next Step <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <Label>Hostel Images</Label>
-              <ImageUpload
-                images={hostelData.images}
-                onImagesChange={(images) => setHostelData({...hostelData, images})}
-                maxImages={5}
-              />
-            </div>
+            {step === 2 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="space-y-4">
+                  <Label>Amenities</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {AVAILABLE_AMENITIES.map((amenity) => {
+                      const IconComponent = getAmenityIcon(amenity.icon);
+                      return (
+                        <div key={amenity.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:border-green-300 transition-colors">
+                          <Checkbox
+                            id={amenity.id}
+                            checked={hostelData.amenities.includes(amenity.id)}
+                            onCheckedChange={(checked) => 
+                              handleAmenityChange(amenity.id, checked as boolean)
+                            }
+                          />
+                          <div className="flex items-center space-x-2">
+                            <IconComponent className="h-4 w-4 text-green-600" />
+                            <Label htmlFor={amenity.id} className="text-sm cursor-pointer">
+                              {amenity.name}
+                            </Label>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            <div className="flex justify-end pt-6">
-              <Button 
-                type="submit" 
-                className="bg-green-600 hover:bg-green-700 min-w-32"
-                disabled={createOrUpdateHostel.isPending}
-              >
-                {createOrUpdateHostel.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    {existingHostel ? "Update" : "Continue"}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
+                <div className="flex justify-between pt-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>Back</Button>
+                  <Button type="button" onClick={() => setStep(3)} className="bg-green-600 hover:bg-green-700 min-w-32">
+                    Next Step <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="space-y-4">
+                  <Label>Hostel Images</Label>
+                  <p className="text-sm text-gray-500 mb-2">Upload up to 5 high-quality images of your hostel</p>
+                  <ImageUpload
+                    images={hostelData.images}
+                    onImagesChange={(images) => setHostelData({...hostelData, images})}
+                    maxImages={5}
+                  />
+                </div>
+
+                <div className="flex justify-between pt-6">
+                  <Button type="button" variant="outline" onClick={() => setStep(2)}>Back</Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-green-600 hover:bg-green-700 min-w-32"
+                    disabled={createOrUpdateHostel.isPending}
+                  >
+                    {createOrUpdateHostel.isPending ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</>
+                    ) : (
+                      <>{existingHostel ? "Update" : "Submit"} <ArrowRight className="h-4 w-4 ml-2" /></>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

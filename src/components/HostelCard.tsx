@@ -89,11 +89,7 @@ const HostelCard = ({ hostel }: HostelCardProps) => {
           </div>
         )}
 
-        {!hasRoomTypes && (
-          <Badge variant="outline" className="text-xs text-gray-500 px-2 py-0.5 bg-gray-50">
-            Room details coming soon
-          </Badge>
-        )}
+
         
         {hostel.amenities && hostel.amenities.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -108,14 +104,14 @@ const HostelCard = ({ hostel }: HostelCardProps) => {
         
         <div className="flex gap-2 pt-2 mt-auto">
           <Link to={`/hostel/${hostel.id}`} className="flex-1">
-            <Button variant="outline" size="sm" className="w-full text-xs h-8 hover:bg-gray-50">
+            <button className="w-full h-8 text-xs font-semibold rounded-lg border border-[#1B4FA8] text-[#1B4FA8] bg-transparent hover:bg-[#1B4FA8] hover:text-white transition-all duration-200">
               View Details
-            </Button>
+            </button>
           </Link>
           <Button 
             onClick={() => window.open(whatsappLink, '_blank')} 
             size="sm"
-            className="flex-1 bg-blue-700 hover:bg-blue-600 text-xs h-8"
+            className="flex-1 bg-[#1B4FA8] hover:bg-[#163d85] text-xs h-8 text-white"
           >
             <Phone className="h-3 w-3 mr-1" />
             Contact

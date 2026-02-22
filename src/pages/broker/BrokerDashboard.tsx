@@ -22,7 +22,7 @@ import { EditRoomDialog } from "@/components/EditRoomDialog";
 
 type RoomType = Database['public']['Enums']['room_type'];
 
-const OwnerDashboard = () => {
+const BrokerDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [newRoomData, setNewRoomData] = useState({
     type: "" as RoomType,
@@ -193,9 +193,9 @@ const OwnerDashboard = () => {
 
   if (loading || hostelLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
         <div className="flex items-center space-x-2">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#1B4FA8]" />
           <span className="text-gray-600">Loading dashboard...</span>
         </div>
       </div>
@@ -227,13 +227,41 @@ const OwnerDashboard = () => {
     );
   }
 
+  // Show pending approval if newly onboarded and not yet approved by admin
+  if (!hostel.approved) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-sm border-gray-100 text-center rounded-xl p-4">
+          <CardHeader>
+            <div className="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <Shield className="h-8 w-8 text-yellow-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-800">Pending Approval</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-gray-600">
+              Your broker account and your hostel <strong>{hostel.name}</strong> are currently under review by our administration team.
+            </p>
+            <p className="text-sm text-gray-500">
+              You'll be granted full access to your dashboard to manage rooms and settings once your account is verified. This usually takes between 24-48 hours.
+            </p>
+            <Button variant="outline" onClick={handleSignOut} className="w-full mt-4">
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-[#F8FAFC]">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div className="mx-auto px-4 md:px-8 lg:px-12 h-14 flex items-center justify-between max-w-7xl">
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#1B4FA8] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
               <Building2 className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
             </div>
             <div className="min-w-0 flex-1">
@@ -277,12 +305,12 @@ const OwnerDashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="rooms" className="text-xs sm:text-sm">My Rooms</TabsTrigger>
-            <TabsTrigger value="add-room" className="text-xs sm:text-sm">Add Room</TabsTrigger>
+      <main className="mx-auto px-0 md:px-8 lg:px-12 py-3 sm:py-8 max-w-7xl">
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6 px-3 sm:px-0">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg bg-gray-100/80">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:text-[#1B4FA8]">Overview</TabsTrigger>
+            <TabsTrigger value="rooms" className="text-xs sm:text-sm data-[state=active]:text-[#1B4FA8]">My Rooms</TabsTrigger>
+            <TabsTrigger value="add-room" className="text-xs sm:text-sm data-[state=active]:text-[#1B4FA8]">Add Room</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 sm:space-y-6">
@@ -298,9 +326,9 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Hostel Info Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 bg-white sm:bg-transparent shadow-sm sm:shadow-none divide-y sm:divide-y-0">
               {/* Basic Info */}
-              <Card>
+              <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg sm:text-xl">Basic Information</CardTitle>
                 </CardHeader>
@@ -321,7 +349,7 @@ const OwnerDashboard = () => {
               </Card>
 
               {/* Amenities */}
-              <Card>
+              <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg sm:text-xl">Amenities</CardTitle>
                 </CardHeader>
@@ -332,7 +360,7 @@ const OwnerDashboard = () => {
                         const IconComponent = getAmenityIcon(amenityId);
                         return (
                           <div key={amenityId} className="flex items-center space-x-2">
-                            <IconComponent className="h-4 w-4 text-green-600 flex-shrink-0" />
+                            <IconComponent className="h-4 w-4 text-[#1B4FA8] flex-shrink-0" />
                             <span className="text-sm">{getAmenityName(amenityId)}</span>
                           </div>
                         );
@@ -345,14 +373,14 @@ const OwnerDashboard = () => {
               </Card>
 
               {/* Statistics */}
-              <Card className="lg:col-span-2">
+              <Card className="lg:col-span-2 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg sm:text-xl">Statistics</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl sm:text-3xl font-bold text-green-600">
+                      <div className="text-2xl sm:text-3xl font-bold text-[#1B4FA8]">
                         {hostel.rooms?.length || 0}
                       </div>
                       <div className="text-xs sm:text-sm text-gray-600">Room Types</div>
@@ -394,9 +422,9 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Rooms Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
               {hostel.rooms?.map((room) => (
-                <Card key={room.id} className="hover:shadow-lg transition-shadow">
+                <Card key={room.id} className="rounded-none sm:rounded-xl shadow-sm border-0 sm:border border-gray-100 hover:shadow-md transition-all">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base sm:text-lg leading-tight">
@@ -409,7 +437,7 @@ const OwnerDashboard = () => {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="space-y-3">
-                      <p className="text-xl sm:text-2xl font-bold text-green-600">
+                      <p className="text-xl sm:text-2xl font-bold text-[#1B4FA8]">
                         UGX {room.price.toLocaleString()}/{room.price_period}
                       </p>
                       <p className="text-gray-600 text-sm line-clamp-2">{room.description}</p>
@@ -441,7 +469,7 @@ const OwnerDashboard = () => {
                     const addRoomTab = document.querySelector('[value="add-room"]') as HTMLElement;
                     if (addRoomTab) addRoomTab.click();
                   }}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-[#1B4FA8] hover:bg-blue-800"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Room
@@ -453,7 +481,7 @@ const OwnerDashboard = () => {
           <TabsContent value="add-room" className="space-y-4 sm:space-y-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Add New Room</h2>
             
-            <Card>
+            <Card className="rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
               <CardHeader>
                 <CardTitle className="text-lg sm:text-xl">Room Information</CardTitle>
                 <p className="text-sm text-gray-600">Add a new room type to your hostel</p>
@@ -560,7 +588,7 @@ const OwnerDashboard = () => {
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6">
                     <Button 
                       type="submit" 
-                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      className="flex-1 bg-[#1B4FA8] hover:bg-blue-800"
                       disabled={createRoom.isPending}
                     >
                       {createRoom.isPending ? "Adding Room..." : "Add Room"}
@@ -594,4 +622,4 @@ const OwnerDashboard = () => {
   );
 };
 
-export default OwnerDashboard;
+export default BrokerDashboard;

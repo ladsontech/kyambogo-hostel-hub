@@ -7,7 +7,7 @@ export const useAllHostels = () => {
     queryKey: ['all-hostels'],
     queryFn: async () => {
       console.log('Fetching all hostels for admin...');
-      
+
       const { data, error } = await supabase
         .from('hostels')
         .select(`
@@ -21,7 +21,7 @@ export const useAllHostels = () => {
         console.error('Error fetching all hostels:', error);
         throw error;
       }
-      
+
       console.log('All hostels data:', data);
       return data;
     }
@@ -45,7 +45,7 @@ export const useCreateHostel = () => {
       featured?: boolean;
     }) => {
       console.log('Creating hostel with data:', hostelData);
-      
+
       const insertData = {
         ...hostelData,
         approved: true, // Admin-created hostels are automatically approved
@@ -67,7 +67,7 @@ export const useCreateHostel = () => {
         console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
-      
+
       console.log('Created hostel:', data);
       return data;
     },
@@ -157,9 +157,38 @@ export const useToggleFeature = () => {
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
       toast({
         title: data.featured ? "Hostel Featured" : "Feature Removed",
-        description: data.featured 
-          ? "This hostel will now appear at the top of the homepage." 
+        description: data.featured
+          ? "This hostel will now appear at the top of the homepage."
           : "This hostel will no longer be featured.",
+      });
+    }
+  });
+};
+
+export const useApproveHostel = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, approved }: { id: string; approved: boolean }) => {
+      const { data, error } = await supabase
+        .from('hostels')
+        .update({ approved })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['all-hostels'] });
+      queryClient.invalidateQueries({ queryKey: ['hostels'] });
+      toast({
+        title: data.approved ? "Hostel Approved" : "Approval Revoked",
+        description: data.approved
+          ? "This hostel is now visible to everyone."
+          : "This hostel is now pending approval.",
       });
     }
   });
