@@ -1,16 +1,15 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus, Edit, Star, CheckCircle, XCircle } from "lucide-react";
+import { Shield, Building2, Users, Phone, Eye, Trash2, LogOut, Search, Loader2, Image as ImageIcon, Menu, X, Bed, Plus, Edit, Star, CheckCircle, XCircle, Bot, Mic, ArrowLeft, LayoutDashboard, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAllHostels, useDeleteHostel, useToggleFeature, useApproveHostel } from "@/hooks/useAdminData";
 import CarouselManager from "@/components/CarouselManager";
 import AdminHostelForm from "@/components/AdminHostelForm";
+import EditHostelDialog from "@/components/EditHostelDialog";
 import { AddRoomDialog } from "@/components/AddRoomDialog";
-import { EditRoomDialog } from "@/components/EditRoomDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BrokerNode {
@@ -21,6 +20,9 @@ interface BrokerNode {
 }
 
 const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeHostelIdForRooms, setActiveHostelIdForRooms] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showHostelForm, setShowHostelForm] = useState(false);
@@ -31,9 +33,17 @@ const AdminDashboard = () => {
   const approveHostel = useApproveHostel();
   const isMobile = useIsMobile();
 
+  // Auto-collapse sidebar on smaller screens, unfold on large screens initially
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [isMobile]);
+
   const allRooms = (hostels || []).flatMap((hostel: any) => 
     (hostel.rooms || []).map((room: any) => ({
       ...room,
+      hostelId: hostel.id,
       hostelName: hostel.name,
       hostelLocation: hostel.location,
       contactPhone: hostel.contact_phone
@@ -55,15 +65,15 @@ const AdminDashboard = () => {
   };
 
   const filteredHostels = (hostels || []).filter((hostel: any) =>
-    hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.location.toLowerCase().includes(searchTerm.toLowerCase())
+    (hostel.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (hostel.location || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredRooms = allRooms.filter((room: any) =>
-    room.hostelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.hostelLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    (room.hostelName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (room.hostelLocation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (room.type || '').toLowerCase().includes(searchTerm.toLowerCase())
+  ).filter((room: any) => activeHostelIdForRooms ? room.hostelId === activeHostelIdForRooms : true);
 
   const brokersMap = new Map<string, BrokerNode>();
   (hostels || []).forEach((h: any) => {
@@ -79,13 +89,20 @@ const AdminDashboard = () => {
     brokersMap.get(key)!.hostels.push(h);
   });
   const brokers = Array.from(brokersMap.values()).filter(b => 
-    b.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    b.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (b.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (b.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const menuItems = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "hostels", label: "Hostels", icon: Building2 },
+    { id: "brokers", label: "Brokers", icon: Users },
+    { id: "carousel", label: "Carousel", icon: ImageIcon },
+  ];
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
         <div className="flex items-center">
           <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-[#1B4FA8]" />
           <span className="ml-2 text-sm sm:text-base text-gray-600">Loading dashboard...</span>
@@ -95,536 +112,595 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-        <div className="mx-auto px-4 md:px-8 lg:px-12 h-14 flex items-center justify-between max-w-7xl">
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-            <div className="w-6 h-6 sm:w-10 sm:h-10 bg-[#1B4FA8] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Shield className="h-3 w-3 sm:h-6 sm:w-6 text-white" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-xs sm:text-xl font-bold text-gray-800 truncate">Admin Dashboard</h1>
-              <p className="text-xs text-gray-500 hidden sm:block">Kyambogo Hostel Connect</p>
-            </div>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col md:flex-row font-sans">
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-white shadow-sm transition-all duration-300 ease-in-out border-r border-gray-100 flex flex-col 
+        ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'} 
+        ${isSidebarCollapsed ? 'md:w-20' : 'md:w-64'}`}>
+        
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-50 flex-shrink-0 relative">
+          <div className={`overflow-hidden transition-all duration-300 flex items-center justify-center ${isSidebarCollapsed ? 'w-full' : 'w-auto'}`}>
+            <img 
+              src="/images/logo.png" 
+              alt="Logo" 
+              className={`transition-all duration-300 object-contain ${isSidebarCollapsed ? 'h-8 w-8' : 'h-10 w-auto'}`} 
+            />
           </div>
           
-          <button
-            className="sm:hidden p-2 text-gray-600 hover:text-blue-600 flex-shrink-0"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+            className="hidden md:flex absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-white border border-gray-200 rounded-full items-center justify-center shadow-sm text-gray-400 hover:text-[#1B4FA8] hover:border-[#1B4FA8] z-10 transition-colors"
           >
-            {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
-          
-          <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-            <Link to="/">
-              <Button variant="outline" size="sm">
-                <Eye className="h-4 w-4 mr-2" />
-                View Site
-              </Button>
-            </Link>
-            <Link to="/admin">
-              <Button variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </Link>
-          </div>
+
+          <button 
+            className="md:hidden ml-auto p-1 text-gray-500 hover:text-gray-800"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        {isMobileMenuOpen && (
-          <div className="sm:hidden border-t bg-white">
-            <div className="container mx-auto px-3 py-3 space-y-2">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full justify-start text-sm">
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Site
-                </Button>
-              </Link>
-              <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full justify-start text-sm">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
-      </header>
-
-      <main className="mx-auto px-0 md:px-8 lg:px-12 py-3 sm:py-8 max-w-7xl">
-        {/* Heco Pulse Notification */}
-        {hostels?.some((h: any) => !h.approved) && (
-          <Card className="mb-6 border-blue-200 bg-blue-50/50 backdrop-blur-sm shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex items-center justify-between p-4 px-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
-                  <div className="relative w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
-                    <Bot className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-blue-900">Tamu Pulse</h4>
-                  <p className="text-xs text-blue-700 font-medium">
-                    {hostels.filter((h: any) => !h.approved).length} broker listings are waiting for your approval.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button 
-                  size="sm" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-4 rounded-full h-8"
+        <div className="flex-1 overflow-y-auto py-6">
+          <nav className="space-y-1.5 px-3">
+            {menuItems.map((item) => {
+              const isActive = activeTab === item.id || (activeTab === "rooms" && item.id === "hostels");
+              return (
+                <button
+                  key={item.id}
                   onClick={() => {
-                    const pending = hostels.filter((h: any) => !h.approved);
-                    pending.forEach((h: any) => handleApprove(h.id, false));
+                    setActiveTab(item.id);
+                    setIsMobileMenuOpen(false);
+                    if (item.id !== "rooms") setActiveHostelIdForRooms(null);
                   }}
+                  title={isSidebarCollapsed ? item.label : undefined}
+                  className={`w-full flex items-center py-2.5 rounded-lg transition-all duration-200 group ${
+                    isSidebarCollapsed ? 'justify-center px-0' : 'px-3'
+                  } ${
+                    isActive 
+                      ? 'bg-[#1B4FA8]/10 text-[#1B4FA8]' 
+                      : 'text-gray-500 hover:bg-gray-50 hover:text-[#1B4FA8]'
+                  }`}
                 >
-                  APPROVE ALL
+                  <item.icon className={`transition-colors flex-shrink-0 ${
+                    isActive ? 'text-[#1B4FA8]' : 'text-gray-400 group-hover:text-[#1B4FA8]'
+                  } ${isSidebarCollapsed ? 'h-5 w-5' : 'mr-3 h-[18px] w-[18px]'}`} />
+                  
+                  <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden font-medium text-sm ${
+                    isActive ? 'text-[#1B4FA8]' : 'text-gray-600 group-hover:text-[#1B4FA8]'
+                  } ${isSidebarCollapsed ? 'w-0 opacity-0 hidden' : 'w-auto opacity-100 block'}`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+        
+        <div className="p-4 border-t border-gray-50">
+          <Link to="/admin">
+            <Button variant="ghost" className={`w-full text-[13px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-3'}`} title={isSidebarCollapsed ? "Sign Out" : undefined}>
+              <LogOut className={`flex-shrink-0 ${isSidebarCollapsed ? 'mr-0 h-4 w-4' : 'mr-2 h-[18px] w-[18px]'}`} />
+              {!isSidebarCollapsed && <span>Sign Out</span>}
+            </Button>
+          </Link>
+        </div>
+      </aside>
+
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'}`}>
+        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 hidden md:flex sticky top-0 z-30 px-6 h-16 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                className="md:hidden p-2 -ml-2 text-gray-600 hover:text-[#1B4FA8] transition-colors rounded-lg hover:bg-gray-100"
+                onClick={() => setIsMobileMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <h1 className="text-xl font-bold text-[#0f172a]">
+                {activeTab === "rooms" ? 'Rooms Details' : menuItems.find(m => m.id === activeTab)?.label}
+              </h1>
+            </div>
+            
+            <div className="flex items-center">
+              <Link to="/">
+                <Button variant="outline" className="text-sm font-medium text-gray-700 border-gray-200 bg-white hover:bg-gray-50 shadow-sm h-9 rounded-lg px-4">
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Frontend
                 </Button>
-                <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-white/50 rounded-full border border-blue-100">
-                  <Mic className="w-3.5 h-3.5 text-blue-500" />
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Voice ready</span>
-                </div>
+              </Link>
+            </div>
+        </header>
+        <header className="bg-white shadow-sm border-b border-gray-200 flex md:hidden sticky top-0 z-30 px-4 h-16 items-center justify-between">
+          {/* Mobile Header logic maintained separate for clarity */}
+          <div className="flex items-center gap-3">
+              <button
+                className="p-2 -ml-2 text-gray-600 hover:text-[#1B4FA8] transition-colors rounded-lg hover:bg-gray-100"
+                onClick={() => setIsMobileMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <h1 className="text-lg font-bold text-[#0f172a]">
+                {activeTab === "rooms" ? 'Rooms' : menuItems.find(m => m.id === activeTab)?.label}
+              </h1>
+            </div>
+        </header>
+
+        <main className="flex-1 p-4 md:p-8 w-full max-w-7xl mx-auto overflow-x-hidden">
+          
+          {activeTab === "overview" && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <Card className="rounded-xl border-0 shadow-sm bg-white overflow-hidden relative group">
+                  <div className="absolute inset-y-0 left-0 w-1 bg-blue-500 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[13px] font-medium text-gray-500">Total Hostels</p>
+                      <div className="text-3xl font-bold text-[#0f172a]">{hostels?.length || 0}</div>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-[#1B4FA8]" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-xl border-0 shadow-sm bg-white overflow-hidden relative group">
+                  <div className="absolute inset-y-0 left-0 w-1 bg-indigo-500 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[13px] font-medium text-gray-500">Contact Points</p>
+                      <div className="text-3xl font-bold text-[#0f172a]">
+                        {[...new Set(hostels?.map((h: any) => h.contact_phone))].length}
+                      </div>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <Users className="h-6 w-6 text-indigo-600" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-xl border-0 shadow-sm bg-white overflow-hidden relative group">
+                  <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-[13px] font-medium text-gray-500">Total Rooms</p>
+                      <div className="text-3xl font-bold text-[#0f172a]">
+                        {allRooms.length}
+                      </div>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center">
+                      <Bed className="h-6 w-6 text-emerald-600" strokeWidth={2} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {hostels?.some((h: any) => !h.approved) && (
+                <Card className="border-0 bg-white shadow-sm overflow-hidden rounded-xl mt-6 relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 px-6 gap-4 pl-8">
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
+                        <div className="relative w-10 h-10 rounded-full bg-[#1B4FA8]/10 flex items-center justify-center">
+                          <Bot className="w-5 h-5 text-[#1B4FA8]" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-[15px] font-semibold text-[#0f172a] mb-0.5">Pending Approvals</h4>
+                        <p className="text-[13px] text-gray-500">
+                          <span className="font-semibold text-gray-800">{hostels.filter((h: any) => !h.approved).length}</span> broker listings are waiting for your review.
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[13px] px-5 h-9 rounded-lg shadow-sm"
+                      onClick={() => {
+                        const pending = hostels.filter((h: any) => !h.approved);
+                        pending.forEach((h: any) => handleApprove(h.id, false));
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve All Items
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <Card className="border-0 shadow-sm bg-white rounded-xl">
+                  <CardContent className="p-6">
+                    <h3 className="text-[15px] font-semibold text-[#0f172a] mb-4">Quick Links</h3>
+                    <div className="space-y-3">
+                      <Button variant="outline" className="w-full justify-start text-gray-600 border-gray-100 hover:bg-gray-50 h-11 rounded-lg" onClick={() => setActiveTab("hostels")}>
+                        <Building2 className="h-4 w-4 mr-3 text-gray-400" />
+                        Manage Hostel Properties
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start text-gray-600 border-gray-100 hover:bg-gray-50 h-11 rounded-lg" onClick={() => setActiveTab("brokers")}>
+                        <Users className="h-4 w-4 mr-3 text-gray-400" />
+                        Broker Network Index
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start text-gray-600 border-gray-100 hover:bg-gray-50 h-11 rounded-lg" onClick={() => setActiveTab("carousel")}>
+                        <ImageIcon className="h-4 w-4 mr-3 text-gray-400" />
+                        Edit Homepage Graphics
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </Card>
-        )}
+          )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 sm:gap-6 mb-4 sm:mb-8 bg-white sm:bg-transparent shadow-sm sm:shadow-none divide-y sm:divide-y-0">
-          <Card className="p-4 sm:p-5 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
-              <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">Total Hostels</CardTitle>
-              <Building2 className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="text-lg sm:text-2xl font-bold">{hostels?.length || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                All registered hostels
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4 sm:p-5 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
-              <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">Contact Points</CardTitle>
-              <Users className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="text-lg sm:text-2xl font-bold">
-                {[...new Set(hostels?.map((h: any) => h.contact_phone))].length}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Unique contacts
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4 sm:p-5 rounded-none sm:rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-gray-100 sm:col-span-1 col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
-              <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">Total Rooms</CardTitle>
-              <Bed className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div className="text-lg sm:text-2xl font-bold">
-                {allRooms.length}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                All available rooms
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="hostels" className="space-y-4 sm:space-y-6 px-3 sm:px-0">
-          <TabsList className="grid w-full grid-cols-4 h-auto bg-gray-100/80 p-1">
-            <TabsTrigger value="hostels" className="px-1 sm:px-4 py-2 flex items-center gap-2 data-[state=active]:text-[#1B4FA8]">
-              <Building2 className="h-4 w-4 hidden sm:block" />
-              <span className="text-xs sm:text-sm font-medium">Hostels</span>
-            </TabsTrigger>
-            <TabsTrigger value="rooms" className="px-1 sm:px-4 py-2 flex items-center gap-2 data-[state=active]:text-[#1B4FA8]">
-              <Bed className="h-4 w-4 hidden sm:block" />
-              <span className="text-xs sm:text-sm font-medium">Rooms</span>
-            </TabsTrigger>
-            <TabsTrigger value="brokers" className="px-1 sm:px-4 py-2 flex items-center gap-2 data-[state=active]:text-[#1B4FA8]">
-              <Users className="h-4 w-4 hidden sm:block" />
-              <span className="text-xs sm:text-sm font-medium">Brokers</span>
-            </TabsTrigger>
-            <TabsTrigger value="carousel" className="px-1 sm:px-4 py-2 flex items-center gap-2 data-[state=active]:text-[#1B4FA8]">
-              <ImageIcon className="h-4 w-4 hidden sm:block" />
-              <span className="text-xs sm:text-sm font-medium">Carousel</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="hostels" className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                  <h2 className="text-lg sm:text-2xl font-bold text-gray-800">All Hostels</h2>
+          <div className="min-h-[500px]">
+            {activeTab === "hostels" && (
+              <div className="space-y-5 animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search hostels..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 h-10 bg-transparent border-0 focus-visible:ring-0 shadow-none text-[13px]"
+                    />
+                  </div>
                   <Button 
                     onClick={() => setShowHostelForm(!showHostelForm)}
-                    className="bg-[#1B4FA8] hover:bg-blue-800 text-xs sm:text-sm w-fit"
-                    size={isMobile ? "sm" : "default"}
+                    className="bg-[#1B4FA8] hover:bg-blue-800 text-white h-10 rounded-lg px-5 shadow-sm"
                   >
-                    <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    Add Hostel
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span className="font-medium text-[13px]">Add Hostel</span>
                   </Button>
                 </div>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search hostels..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 sm:pl-10 text-xs sm:text-sm"
-                  />
+
+                {showHostelForm && (
+                  <div className="mb-6">
+                    <AdminHostelForm 
+                      onSuccess={() => setShowHostelForm(false)}
+                      onCancel={() => setShowHostelForm(false)}
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-col space-y-4">
+                  {filteredHostels.map((hostel: any) => (
+                    <Card key={hostel.id} className="rounded-xl border-0 bg-white hover:shadow-md shadow-sm transition-all duration-200">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="flex items-center gap-3 mb-1">
+                                <h3 className="text-[17px] font-semibold text-[#0f172a]">{hostel.name}</h3>
+                                {hostel.approved ? (
+                                  <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50 font-medium border border-emerald-100 text-[11px] px-2 py-0">Active</Badge>
+                                ) : (
+                                  <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-50 font-medium border border-amber-100 text-[11px] px-2 py-0">Pending</Badge>
+                                )}
+                                {hostel.featured && (
+                                  <Badge className="bg-blue-50 text-[#1B4FA8] hover:bg-blue-50 font-medium border border-blue-100 text-[11px] px-2 py-0">
+                                    <Star className="h-3 w-3 mr-1 fill-current" />
+                                    Featured
+                                  </Badge>
+                                )}
+                            </div>
+                            <p className="text-gray-500 text-[13px] flex items-center">
+                              <Building2 className="w-3.5 h-3.5 mr-1.5 opacity-60" />
+                              {hostel.location}
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                                <Link to={`/hostel/${hostel.id}`} className="contents">
+                                  <Button variant="outline" size="sm" className="font-medium text-gray-600 hover:text-gray-900 rounded-lg h-8 bg-transparent border-gray-200 shadow-none px-3">
+                                    <Eye className="h-3.5 w-3.5 mr-1.5" />
+                                    View
+                                  </Button>
+                                </Link>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="font-medium text-[#1B4FA8] hover:bg-blue-50 rounded-lg h-8 bg-blue-50/50 border-blue-100 shadow-none px-3"
+                                  onClick={() => {
+                                    setActiveHostelIdForRooms(hostel.id);
+                                    setActiveTab("rooms");
+                                    window.scrollTo(0, 0);
+                                  }}
+                                >
+                                  <Bed className="h-3.5 w-3.5 mr-1.5" />
+                                  Rooms
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="font-medium text-gray-600 hover:text-gray-900 rounded-lg h-8 bg-transparent border-gray-200 shadow-none px-3"
+                                  onClick={() => setEditingHostel(hostel)}
+                                >
+                                  <Edit className="h-3.5 w-3.5 mr-1.5" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant={hostel.approved ? "outline" : "default"}
+                                  size="sm"
+                                  className={`font-medium rounded-lg h-8 shadow-none px-3 ${!hostel.approved ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-0' : 'text-gray-600 hover:text-gray-900 bg-transparent border-gray-200'}`}
+                                  onClick={() => handleApprove(hostel.id, hostel.approved)}
+                                  disabled={approveHostel.isPending}
+                                >
+                                  {hostel.approved ? (
+                                    <><XCircle className="h-3.5 w-3.5 mr-1.5 text-gray-400" /> Revoke</>
+                                  ) : (
+                                    <><CheckCircle className="h-3.5 w-3.5 mr-1.5" /> Approve</>
+                                  )}
+                                </Button>
+                                <Button 
+                                  variant={hostel.featured ? "default" : "outline"}
+                                  size="sm"
+                                  className={`font-medium rounded-lg h-8 shadow-none px-3 ${hostel.featured ? 'bg-[#c97b1a] hover:bg-[#b06a15] text-white border-0' : 'text-gray-600 hover:text-gray-900 bg-transparent border-gray-200'}`}
+                                  onClick={() => handleToggleFeature(hostel.id, hostel.featured)}
+                                  disabled={toggleFeature.isPending}
+                                >
+                                  <Star className="h-3.5 w-3.5 mr-1.5" />
+                                  {hostel.featured ? 'Unfeature' : 'Feature'}
+                                </Button>
+                          </div>
+                        </div>
+
+                        <p className="text-gray-500 text-[13.5px] leading-relaxed mb-5 line-clamp-2 lg:pr-32">
+                           {hostel.description}
+                        </p>
+
+                        <div className="flex justify-between items-end border-t border-gray-50 pt-4">
+                            <div className="flex gap-12 sm:gap-20">
+                                <div>
+                                    <p className="text-[11px] font-medium text-gray-400 mb-1">Contact Details</p>
+                                    <div className="flex items-center text-[13px] font-medium text-[#0f172a]">
+                                        <Phone className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
+                                        {hostel.contact_phone}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-medium text-gray-400 mb-1">Rooms Catalog</p>
+                                    <div className="flex flex-wrap gap-2 text-[13px] font-medium text-[#0f172a]">
+                                      {hostel.rooms?.slice(0, 3).map((room: any) => (
+                                        <div key={room.id} className="flex items-center text-gray-600 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md">
+                                          {room.price.toLocaleString()} UGX
+                                        </div>
+                                      ))}
+                                      {hostel.rooms && hostel.rooms.length > 3 && (
+                                        <div className="flex items-center text-gray-400 text-xs font-medium">
+                                          +{hostel.rooms.length - 3}
+                                        </div>
+                                      )}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <AddRoomDialog hostelId={hostel.id} hostelName={hostel.name} />
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8 p-0 ml-1 rounded-md"
+                                  onClick={() => handleDelete(hostel.id)}
+                                  disabled={deleteHostel.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {filteredHostels.length === 0 && (
+                    <div className="text-center py-16 px-4 bg-white rounded-xl shadow-sm border border-gray-50 mt-4">
+                      <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Building2 className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <h3 className="text-[15px] font-medium text-[#0f172a] mb-1">No properties found</h3>
+                      <p className="text-[13px] text-gray-500 max-w-sm mx-auto">
+                        We couldn't find any hostels matching your criteria. Try adjusting filters or add a new one.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {showHostelForm && (
-              <div className="mb-6 sm:mb-8">
-                <AdminHostelForm 
-                  onSuccess={() => setShowHostelForm(false)}
-                  onCancel={() => setShowHostelForm(false)}
-                />
-              </div>
             )}
 
-            <div className="space-y-3 sm:space-y-4">
-              {filteredHostels.map((hostel: any) => (
-                <Card key={hostel.id} className="rounded-none sm:rounded-xl shadow-sm border-0 sm:border border-gray-100 hover:shadow-md transition-all">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <h3 className="text-sm sm:text-xl font-semibold text-gray-800 truncate">{hostel.name}</h3>
-                            <div className="flex gap-2">
-                              {hostel.approved ? (
-                                <Badge className="bg-green-100 text-green-800 w-fit text-xs">Active</Badge>
-                              ) : (
-                                <Badge className="bg-yellow-100 text-yellow-800 w-fit text-xs">Pending</Badge>
-                              )}
-                              {hostel.featured && (
-                                <Badge className="bg-blue-100 text-blue-800 w-fit text-xs">
-                                  <Star className="h-3 w-3 mr-1" />
-                                  Featured
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-gray-600 mb-2 sm:mb-3 text-xs sm:text-base">{hostel.location}</p>
-                          <p className="text-gray-700 mb-3 sm:mb-4 line-clamp-2 text-xs sm:text-base">{hostel.description}</p>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-2 sm:hidden">
-                          {hostel.rooms?.slice(0, 2).map((room: any) => (
-                            <Badge key={room.id} variant="outline" className="text-xs">
-                              {room.price.toLocaleString()} UGX
-                            </Badge>
-                          ))}
-                          {hostel.rooms && hostel.rooms.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{hostel.rooms.length - 2} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">Contact Details</h4>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            <p className="flex items-center gap-2">
-                              <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                              <span className="truncate">{hostel.contact_phone}</span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">Hostel Info</h4>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            <p>{hostel.rooms?.length || 0} Room Types</p>
-                            <p>Added {new Date(hostel.created_at).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                      </div>
+            {activeTab === "rooms" && (
+              <div className="space-y-5 animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                   <div className="flex items-center gap-3">
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => {
+                        setActiveTab("hostels");
+                        setActiveHostelIdForRooms(null);
+                      }}
+                      className="text-gray-500 hover:text-gray-900 rounded-lg h-10 px-4"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      <span className="font-medium text-[13px]">Back to Properties</span>
+                    </Button>
+                  </div>
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search rooms..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 h-10 bg-transparent border-0 focus-visible:ring-0 shadow-none text-[13px]"
+                    />
+                  </div>
+                </div>
 
-                      <div className="hidden sm:flex flex-wrap gap-2 mb-4">
-                        {hostel.rooms?.slice(0, 3).map((room: any) => (
-                          <Badge key={room.id} variant="outline" className="text-xs">
-                            {room.price.toLocaleString()} UGX
-                          </Badge>
-                        ))}
-                        {hostel.rooms && hostel.rooms.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{hostel.rooms.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-                        <Link to={`/hostel/${hostel.id}`} className="contents">
-                          <Button variant="outline" size="sm" className="text-xs">
-                            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                            View
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => setEditingHostel(hostel)}
-                        >
-                          <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant={hostel.approved ? "outline" : "default"}
-                          size="sm"
-                          className={`text-xs ${!hostel.approved ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
-                          onClick={() => handleApprove(hostel.id, hostel.approved)}
-                          disabled={approveHostel.isPending}
-                        >
-                          {hostel.approved ? (
-                            <><XCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> Revoke</>
-                          ) : (
-                            <><CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> Approve</>
-                          )}
-                        </Button>
-                        <Button 
-                          variant={hostel.featured ? "default" : "outline"}
-                          size="sm"
-                          className={`text-xs ${hostel.featured ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
-                          onClick={() => handleToggleFeature(hostel.id, hostel.featured)}
-                          disabled={toggleFeature.isPending}
-                        >
-                          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          {hostel.featured ? 'Unfeature' : 'Feature'}
-                        </Button>
-                        <AddRoomDialog 
-                          hostelId={hostel.id} 
-                          hostelName={hostel.name}
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => window.open(`tel:${hostel.contact_phone}`, '_blank')}
-                        >
-                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          Call
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-xs text-red-600 hover:text-red-700 hover:border-red-300 col-span-2 sm:col-span-1"
-                          onClick={() => handleDelete(hostel.id)}
-                          disabled={deleteHostel.isPending}
-                        >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {filteredHostels.length === 0 && (
-              <div className="text-center py-8 sm:py-16">
-                <Building2 className="h-8 w-8 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-base sm:text-xl font-semibold text-gray-600 mb-2">No hostels found</h3>
-                <p className="text-sm text-gray-500">Try adjusting your search criteria or add a new hostel</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="rooms" className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-lg sm:text-3xl font-bold text-gray-800">All Rooms</h2>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                <Input
-                  placeholder="Search rooms..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 sm:pl-10 text-xs sm:text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3 sm:space-y-4">
-              {filteredRooms.map((room: any) => (
-                <Card key={room.id} className="rounded-none sm:rounded-xl shadow-sm border-0 sm:border border-gray-100 hover:shadow-md transition-all">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col space-y-3 sm:space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <h3 className="text-sm sm:text-xl font-semibold text-gray-800 capitalize">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredRooms.map((room: any) => (
+                    <Card key={room.id} className="rounded-xl shadow-sm border-0 bg-white hover:shadow-md transition-all duration-200">
+                      <CardContent className="p-0">
+                        <div className="p-5 border-b border-gray-50 flex justify-between items-start">
+                          <div>
+                            <h3 className="text-[15px] font-semibold text-[#0f172a] capitalize mb-1.5">
                               {room.type.replace('-', ' ')} Room
                             </h3>
-                            <Badge className="bg-blue-100 text-blue-800 w-fit text-xs">
-                              {room.price.toLocaleString()} UGX / {room.price_period}
-                            </Badge>
+                            <div className="inline-flex py-1 px-2.5 bg-blue-50/50 border border-blue-100 rounded-md">
+                              <span className="text-[13px] font-semibold text-[#1B4FA8]">
+                                {room.price.toLocaleString()} UGX <span className="text-[#1B4FA8]/60 font-medium ml-1">/ {room.price_period}</span>
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        
-                        <div className="flex gap-2 flex-shrink-0">
-                          <EditRoomDialog room={room} />
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="text-xs"
-                            onClick={() => window.open(`tel:${room.contactPhone}`, '_blank')}
-                          >
-                            <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                            Call
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">Hostel Details</h4>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            <p className="font-medium">{room.hostelName}</p>
-                            <p>{room.hostelLocation}</p>
+                        <div className="p-5">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
+                                <Building2 className="h-4 w-4 text-gray-500" strokeWidth={1.5} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[13.5px] font-medium text-[#0f172a] truncate">{room.hostelName}</p>
+                                <p className="text-[11.5px] text-gray-500 truncate">{room.hostelLocation}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 pt-1">
+                              <div className="flex-1 bg-gray-50 rounded-lg p-2.5 border border-gray-100 flex items-center justify-between">
+                                  <span className="text-[11px] font-medium text-gray-500">Total</span>
+                                  <span className="text-[13px] font-semibold text-[#0f172a]">{room.total_rooms}</span>
+                              </div>
+                              <div className="flex-1 bg-emerald-50/50 rounded-lg p-2.5 border border-emerald-100 flex items-center justify-between">
+                                  <span className="text-[11px] font-medium text-emerald-600/80">Available</span>
+                                  <span className="text-[13px] font-semibold text-emerald-600">{room.available_rooms}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800 text-xs sm:text-base">Room Info</h4>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            <p>Total: {room.total_rooms} rooms</p>
-                            <p>Available: {room.available_rooms} rooms</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {room.description && (
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-700">{room.description}</p>
-                        </div>
-                      )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {filteredRooms.length === 0 && (
+                    <div className="col-span-full text-center py-16 px-4 bg-white rounded-xl shadow-sm border border-gray-50 mt-4">
+                      <Bed className="h-8 w-8 text-gray-300 mx-auto mb-3" />
+                      <h3 className="text-[15px] font-medium text-[#0f172a] mb-1">No rooms found</h3>
+                      <p className="text-[13px] text-gray-500">Rooms connected to this property will appear here.</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-
-          </TabsContent>
-
-          <TabsContent value="brokers" className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-lg sm:text-2xl font-bold text-gray-800">Broker Management</h2>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search brokers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 text-sm focus:ring-[#1B4FA8]"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3 sm:space-y-4">
-              {brokers.map((broker, index) => {
-                const totalRooms = broker.hostels.reduce((acc, h) => acc + (h.rooms?.length || 0), 0);
-                const isAllApproved = broker.hostels.every(h => h.approved);
-                
-                return (
-                  <Card key={index} className="rounded-none sm:rounded-xl shadow-sm border-0 sm:border border-gray-100 hover:shadow-md transition-all">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-sm sm:text-xl font-semibold text-gray-800 truncate">
-                              {broker.name || 'Unnamed Broker'}
-                            </h3>
-                            {isAllApproved ? (
-                              <Badge className="bg-green-100 text-green-800 text-xs">Verified</Badge>
-                            ) : (
-                              <Badge className="bg-yellow-100 text-yellow-800 text-xs">Pending Reviews</Badge>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600 mb-4">
-                            <p className="flex items-center gap-2">
-                              <span className="font-medium text-gray-500 w-12">Email:</span>
-                              <span className="truncate">{broker.email || '—'}</span>
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <span className="font-medium text-gray-500 w-12">Phone:</span>
-                              <span>{broker.phone || '—'}</span>
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <span className="font-medium text-gray-500 w-12">Hostels:</span>
-                              <span>{broker.hostels.length} linked</span>
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <span className="font-medium text-gray-500 w-12">Rooms:</span>
-                              <span>{totalRooms} active types</span>
-                            </p>
-                          </div>
-                          
-                          <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">
-                            <strong>Hostels List:</strong> {broker.hostels.map(h => h.name).join(', ')}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2 min-w-[140px]">
-                          {!isAllApproved && (
-                            <Button 
-                              size="sm"
-                              className="w-full bg-[#1B4FA8] hover:bg-blue-800 text-xs"
-                              onClick={() => {
-                                broker.hostels.forEach(h => {
-                                  if (!h.approved) handleApprove(h.id, false);
-                                });
-                              }}
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve All
-                            </Button>
-                          )}
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                            onClick={() => {
-                              if(confirm('Are you sure? This will delete ' + broker.hostels.length + ' hostels and all their rooms.')) {
-                                broker.hostels.forEach(h => handleDelete(h.id));
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Burn & Delete
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-            {brokers.length === 0 && (
-              <div className="text-center py-8 sm:py-16">
-                <Users className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-600">No brokers found</h3>
+                  )}
+                </div>
               </div>
             )}
-          </TabsContent>
 
-          <TabsContent value="carousel" className="space-y-4 sm:space-y-6">
-            <h2 className="text-lg sm:text-3xl font-bold text-gray-800">Carousel Management</h2>
-            <CarouselManager />
-          </TabsContent>
-        </Tabs>
-      </main>
+            {activeTab === "brokers" && (
+              <div className="space-y-5 animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search brokers..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 h-10 bg-transparent border-0 focus-visible:ring-0 shadow-none text-[13px]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {brokers.map((broker, index) => {
+                    const totalRooms = broker.hostels.reduce((acc, h) => acc + (h.rooms?.length || 0), 0);
+                    const isAllApproved = broker.hostels.every(h => h.approved);
+                    
+                    return (
+                      <Card key={index} className="rounded-xl shadow-sm border-0 bg-white group hover:shadow-md transition-all duration-200">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                                <span className="text-[15px] font-semibold text-indigo-600">
+                                  {broker.name ? broker.name.charAt(0).toUpperCase() : 'U'}
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="text-[15px] font-semibold text-[#0f172a] leading-tight mb-0.5">
+                                  {broker.name || 'Unnamed Broker'}
+                                </h3>
+                                {isAllApproved ? (
+                                  <span className="text-[11.5px] font-medium text-emerald-600 flex items-center">
+                                      <CheckCircle className="h-3 w-3 mr-1" /> Verified Partner
+                                  </span>
+                                ) : (
+                                  <span className="text-[11.5px] font-medium text-amber-600 flex items-center">
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" /> Pending Approval
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 mb-6">
+                            <div className="flex items-center text-[13px] text-gray-600">
+                              <Phone className="h-3.5 w-3.5 mr-2.5 text-gray-400" />
+                              {broker.phone || 'No phone provided'}
+                            </div>
+                            <div className="flex items-center text-[13px] text-gray-600">
+                              <Building2 className="h-3.5 w-3.5 mr-2.5 text-gray-400" />
+                              <span className="font-medium text-[#0f172a] mr-1">{broker.hostels.length}</span> Active Listings
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t border-gray-50">
+                            {!isAllApproved && (
+                              <Button 
+                                className="flex-1 bg-[#1B4FA8] hover:bg-blue-800 text-white font-medium text-[13px] h-9 rounded-lg"
+                                onClick={() => {
+                                  broker.hostels.forEach(h => {
+                                    if (!h.approved) handleApprove(h.id, false);
+                                  });
+                                }}
+                              >
+                                Approve Items
+                              </Button>
+                            )}
+                            <Button 
+                              variant="outline" 
+                              className={`font-medium text-[13px] bg-white h-9 rounded-lg ${isAllApproved ? 'w-full' : 'flex-1'} text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200`}
+                              onClick={() => {
+                                if(confirm('Are you sure? This will delete ' + broker.hostels.length + ' hostels and all their rooms.')) {
+                                  broker.hostels.forEach(h => handleDelete(h.id));
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-2" />
+                              Remove
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  
+                  {brokers.length === 0 && (
+                    <div className="col-span-full text-center py-16 px-4 bg-white rounded-xl shadow-sm border border-gray-50 mt-4">
+                      <Users className="h-8 w-8 text-gray-300 mx-auto mb-3" />
+                      <h3 className="text-[15px] font-medium text-[#0f172a] mb-1">No brokers found</h3>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "carousel" && (
+              <div className="space-y-5 animate-in fade-in duration-300 max-w-5xl">
+                <div className="bg-white rounded-xl border-0 shadow-sm overflow-hidden p-2">
+                  <CarouselManager />
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
 
       <EditHostelDialog
         open={!!editingHostel}
