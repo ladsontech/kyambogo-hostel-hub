@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Search, Filter, X } from "lucide-react";
 import { ROOM_TYPE_LABELS } from "@/types/hostel";
 
-const UNIVERSITIES = [
+export const UNIVERSITIES = [
   { id: 'all', label: 'All Universities' },
   { id: 'kyambogo', label: 'Kyambogo University' },
   { id: 'makerere', label: 'Makerere University' },

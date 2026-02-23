@@ -10,6 +10,8 @@ import { Building2, Plus, Loader2, Wifi, Car, Shield, Coffee } from "lucide-reac
 import { useCreateHostel } from "@/hooks/useAdminData";
 import ImageUpload from "@/components/ImageUpload";
 import { AVAILABLE_AMENITIES } from "@/types/hostel";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UNIVERSITIES } from "./SearchFilters";
 
 interface AdminHostelFormProps {
   onSuccess?: () => void;
@@ -22,6 +24,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
     location: "",
     description: "",
     contact_phone: "",
+    university: "kyambogo",
     images: [] as string[],
     amenities: [] as string[]
   });
@@ -53,6 +56,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
           location: "",
           description: "",
           contact_phone: "",
+          university: "kyambogo",
           images: [],
           amenities: []
         });
@@ -115,14 +119,33 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Contact Phone *</Label>
-            <Input 
-              placeholder="+256 700 000 000" 
-              value={hostelData.contact_phone}
-              onChange={(e) => setHostelData({...hostelData, contact_phone: e.target.value})}
-              required 
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Contact Phone *</Label>
+              <Input 
+                placeholder="+256 700 000 000" 
+                value={hostelData.contact_phone}
+                onChange={(e) => setHostelData({...hostelData, contact_phone: e.target.value})}
+                required 
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>University *</Label>
+              <Select 
+                value={hostelData.university || "kyambogo"} 
+                onValueChange={(value) => setHostelData({...hostelData, university: value})}
+              >
+                <SelectTrigger className="w-full border-gray-200">
+                  <SelectValue placeholder="Select University" />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNIVERSITIES.filter(u => u.id !== 'all').map(uni => (
+                    <SelectItem key={uni.id} value={uni.id}>{uni.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">
