@@ -233,7 +233,7 @@ const HelpPage = () => {
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             <a
-              href="https://wa.me/256701792387"
+              href="https://wa.me/256793919128"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold px-6 py-2.5 rounded-full text-sm transition-all shadow-sm hover:translate-y-[-2px]"

@@ -115,7 +115,7 @@ export const mockHostels: Hostel[] = [
 ];
 
 export const generateWhatsAppLink = (hostelName: string, roomType?: string) => {
-  const phoneNumber = "256701792387"; // Updated WhatsApp number
+  const phoneNumber = "256793919128"; // Updated WhatsApp number
   const baseUrl = window.location.origin;
   const hostelUrl = `${baseUrl}${window.location.pathname}`;
   
