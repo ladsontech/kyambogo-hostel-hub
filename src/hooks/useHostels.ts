@@ -12,9 +12,11 @@ export const useHostels = () => {
       const { data, error } = await supabase
         .from('hostels')
         .select(`
-          *,
+          id, name, location, description, images, amenities,
+          featured, approved, created_at, updated_at,
           rooms(*)
         `)
+        .eq('approved', true)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -46,9 +48,9 @@ export const useHostels = () => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        contactName: hostel.contact_name || '',
-        contactPhone: hostel.contact_phone || '',
-        contactEmail: hostel.contact_email || '',
+        contactName: '',
+        contactPhone: '',
+        contactEmail: '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: hostel.amenities || [],
@@ -72,10 +74,12 @@ export const useHostel = (id: string) => {
       const { data, error } = await supabase
         .from('hostels')
         .select(`
-          *,
+          id, name, location, description, images, amenities,
+          featured, approved, created_at, updated_at,
           rooms(*)
         `)
         .eq('id', id)
+        .eq('approved', true)
         .maybeSingle();
 
       if (error) {
@@ -104,9 +108,9 @@ export const useHostel = (id: string) => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        contactName: (data as any).contact_name || '',
-        contactPhone: (data as any).contact_phone || '',
-        contactEmail: (data as any).contact_email || '',
+        contactName: '',
+        contactPhone: '',
+        contactEmail: '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(data.created_at).toISOString().split('T')[0],
         amenities: data.amenities || [],
