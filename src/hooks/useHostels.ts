@@ -74,10 +74,12 @@ export const useHostel = (id: string) => {
       const { data, error } = await supabase
         .from('hostels')
         .select(`
-          *,
+          id, name, location, description, images, amenities,
+          featured, approved, created_at, updated_at,
           rooms(*)
         `)
         .eq('id', id)
+        .eq('approved', true)
         .maybeSingle();
 
       if (error) {
