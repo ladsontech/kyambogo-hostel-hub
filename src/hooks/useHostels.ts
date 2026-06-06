@@ -12,9 +12,11 @@ export const useHostels = () => {
       const { data, error } = await supabase
         .from('hostels')
         .select(`
-          *,
+          id, name, location, description, images, amenities,
+          featured, approved, created_at, updated_at,
           rooms(*)
         `)
+        .eq('approved', true)
         .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
