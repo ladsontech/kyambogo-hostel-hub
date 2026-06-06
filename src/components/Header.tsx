@@ -6,7 +6,9 @@ import { MessageCircleQuestion, Menu, X } from "lucide-react";
 // Account points to the rules page first, not directly to /owner
 const navLinks = [
   { label: "Hostels", to: "/hostels" },
-  { label: "Services", to: "/services" },
+  { label: "Locations", to: "/locations" },
+  { label: "UniMarket", to: "/unimarket" },
+  { label: "Laundry", to: "/laundry" },
   { label: "Account", to: "/broker/rules" },
 ];
 
