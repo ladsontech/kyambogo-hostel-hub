@@ -7,7 +7,7 @@ export const useImageUpload = () => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
-  const uploadImage = async (file: File, folder: string = '') => {
+  const uploadImage = async (file: File, folder: string = '', bucket: string = 'hostel-images') => {
     setUploading(true);
     
     try {
@@ -16,14 +16,13 @@ export const useImageUpload = () => {
       const filePath = folder ? `${folder}/${fileName}` : fileName;
 
       const { error } = await supabase.storage
-        .from('hostel-images')
+        .from(bucket)
         .upload(filePath, file);
 
       if (error) throw error;
 
-      // Get the public URL
       const { data } = supabase.storage
-        .from('hostel-images')
+        .from(bucket)
         .getPublicUrl(filePath);
 
       return data.publicUrl;
