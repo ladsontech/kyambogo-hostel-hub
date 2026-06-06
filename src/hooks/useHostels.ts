@@ -48,9 +48,9 @@ export const useHostels = () => {
           totalRooms: room.total_rooms,
           availableRooms: room.available_rooms
         })) || [],
-        contactName: hostel.contact_name || '',
-        contactPhone: hostel.contact_phone || '',
-        contactEmail: hostel.contact_email || '',
+        contactName: '',
+        contactPhone: '',
+        contactEmail: '',
         approved: true, // All hostels are now approved by default
         createdAt: new Date(hostel.created_at).toISOString().split('T')[0],
         amenities: hostel.amenities || [],
