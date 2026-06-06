@@ -5,9 +5,10 @@ import { SearchFilters } from "@/components/SearchFilters";
 import HostelCard from "@/components/HostelCard";
 import ImageCarousel from "@/components/ImageCarousel";
 import { useHostels } from "@/hooks/useHostels";
-import { Loader2, MapPin, Users, Shield, Star, ExternalLink } from "lucide-react";
+import { Loader2, MapPin, ShoppingBag, Shirt, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   console.log("Index component rendering");
@@ -130,27 +131,27 @@ const Index = () => {
               <span className="hidden md:inline"> Your perfect home away from home awaits.</span>
             </p>
 
-            {/* Feature highlights */}
+            {/* Feature highlights — clickable shortcuts to features */}
             <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 md:gap-6 mb-2 md:mb-8 pb-2 md:pb-4 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar snap-x snap-mandatory">
-              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+              <Link to="/locations" className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 hover:border-blue-300 transition-all duration-300">
                 <MapPin className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
-                <span className="text-xs md:text-sm font-medium text-gray-700">Prime Locations</span>
-              </div>
-              
-              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
-                <Shield className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
-                <span className="text-xs md:text-sm font-medium text-gray-700">Secure & Safe</span>
-              </div>
-              
-              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
-                <Users className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
-                <span className="text-xs md:text-sm font-medium text-gray-700">Community</span>
-              </div>
-              
-              <div className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 transition-all duration-300">
+                <span className="text-xs md:text-sm font-medium text-gray-700 text-center">Campus Locations</span>
+              </Link>
+
+              <Link to="/laundry" className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 hover:border-blue-300 transition-all duration-300">
+                <Shirt className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700 text-center">Laundry Services</span>
+              </Link>
+
+              <Link to="/unimarket" className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 hover:border-blue-300 transition-all duration-300">
+                <ShoppingBag className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
+                <span className="text-xs md:text-sm font-medium text-gray-700 text-center">UniMarket</span>
+              </Link>
+
+              <Link to="/hostels" className="flex-shrink-0 w-[140px] md:w-auto snap-center flex flex-col items-center p-4 md:p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100/50 hover:bg-white/80 hover:border-blue-300 transition-all duration-300">
                 <Star className="h-6 w-6 md:h-8 md:w-8 text-blue-600 mb-2" />
-                <span className="text-xs md:text-sm font-medium text-gray-700">Top Rated</span>
-              </div>
+                <span className="text-xs md:text-sm font-medium text-gray-700 text-center">Top Hostels</span>
+              </Link>
             </div>
             
             <style>{`

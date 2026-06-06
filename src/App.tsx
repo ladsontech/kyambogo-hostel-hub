@@ -16,6 +16,10 @@ import HelpPage from "./pages/HelpPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TamuPage from "./pages/TamuPage";
+import LocationsPage from "./pages/LocationsPage";
+import UniMarketPage from "./pages/UniMarketPage";
+import LaundryPage from "./pages/LaundryPage";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
 import { TamuAssistant } from "./components/TamuAssistant";
@@ -42,6 +46,10 @@ const App = () => (
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/tamu" element={<TamuPage />} />
+          <Route path="/locations" element={<LocationsPage />} />
+          <Route path="/unimarket" element={<UniMarketPage />} />
+          <Route path="/laundry" element={<LaundryPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <TamuAssistant />
