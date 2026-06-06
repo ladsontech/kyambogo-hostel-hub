@@ -8,9 +8,11 @@ interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
+  bucket?: string;
+  folder?: string;
 }
 
-const ImageUpload = ({ images, onImagesChange, maxImages = 5 }: ImageUploadProps) => {
+const ImageUpload = ({ images, onImagesChange, maxImages = 5, bucket = 'hostel-images', folder = 'hostels' }: ImageUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadImage, uploading } = useImageUpload();
 
@@ -22,7 +24,7 @@ const ImageUpload = ({ images, onImagesChange, maxImages = 5 }: ImageUploadProps
       if (images.length >= maxImages) break;
       
       try {
-        const imageUrl = await uploadImage(file, 'hostels');
+        const imageUrl = await uploadImage(file, folder, bucket);
         onImagesChange([...images, imageUrl]);
       } catch (error) {
         console.error('Upload failed:', error);
