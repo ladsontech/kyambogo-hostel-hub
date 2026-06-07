@@ -28,6 +28,8 @@ import { Trash2, Edit, Plus, Image as ImageIcon } from "lucide-react";
 import SimpleImageCarousel from "./SimpleImageCarousel";
 import { EditRoomDialog } from "./EditRoomDialog";
 import ImageUpload from "./ImageUpload";
+import { MapPicker } from "./MapPicker";
+
 
 const hostelSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -36,6 +38,8 @@ const hostelSchema = z.object({
   contact_phone: z.string().min(1, "Contact phone is required"),
   amenities: z.array(z.string()).default([]),
   images: z.array(z.string()).default([]),
+  latitude: z.number().nullable().default(null),
+  longitude: z.number().nullable().default(null),
 });
 
 type HostelFormData = z.infer<typeof hostelSchema>;
@@ -61,10 +65,11 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
       contact_phone: "",
       amenities: [],
       images: [],
+      latitude: null,
+      longitude: null,
     },
   });
 
-  // Reset form values when hostel data changes or dialog opens
   useEffect(() => {
     if (hostel && open) {
       form.reset({
@@ -74,6 +79,8 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         contact_phone: hostel.contact_phone || "",
         amenities: hostel.amenities || [],
         images: hostel.images || [],
+        latitude: hostel.latitude ?? null,
+        longitude: hostel.longitude ?? null,
       });
     }
   }, [hostel, open, form]);
@@ -88,12 +95,15 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
         contact_phone: data.contact_phone,
         amenities: data.amenities,
         images: data.images,
+        latitude: data.latitude,
+        longitude: data.longitude,
       });
       onOpenChange(false);
     } catch (error) {
       console.error("Error updating hostel:", error);
     }
   };
+
 
   const handleDeleteRoom = (roomId: string) => {
     if (confirm('Are you sure you want to delete this room?')) {
@@ -190,6 +200,27 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
 
                 <FormField
                   control={form.control}
+                  name="latitude"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel className="text-sm sm:text-base">Pin Location on Map</FormLabel>
+                      <FormControl>
+                        <MapPicker
+                          value={form.watch('latitude') && form.watch('longitude')
+                            ? { lat: form.watch('latitude') as number, lng: form.watch('longitude') as number }
+                            : null}
+                          onChange={(loc) => {
+                            form.setValue('latitude', loc.lat);
+                            form.setValue('longitude', loc.lng);
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="images"
                   render={({ field }) => (
                     <FormItem>
@@ -205,6 +236,7 @@ const EditHostelDialog = ({ open, onOpenChange, hostel }: EditHostelDialogProps)
                     </FormItem>
                   )}
                 />
+
 
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
                   <Button
