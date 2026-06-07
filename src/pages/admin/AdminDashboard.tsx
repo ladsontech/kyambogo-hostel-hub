@@ -12,6 +12,7 @@ import EditHostelDialog from "@/components/EditHostelDialog";
 import { AddRoomDialog } from "@/components/AddRoomDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SearchFilters } from "@/components/SearchFilters";
+import AdminLocationsManager from "@/components/AdminLocationsManager";
 
 interface BrokerNode {
   email: string;
@@ -143,6 +144,7 @@ const AdminDashboard = () => {
     { id: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
     { id: "hostels", label: "Hostels", icon: Building2 },
     { id: "brokers", label: "Brokers", icon: Users },
+    { id: "locations", label: "Locations", icon: MapPin },
     { id: "carousel", label: "Carousel", icon: ImageIcon },
   ];
 
@@ -817,6 +819,12 @@ const AdminDashboard = () => {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {activeTab === "locations" && (
+              <div className="max-w-7xl">
+                <AdminLocationsManager />
               </div>
             )}
 
