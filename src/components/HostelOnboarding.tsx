@@ -12,6 +12,8 @@ import ImageUpload from "@/components/ImageUpload";
 import { AVAILABLE_AMENITIES } from "@/types/hostel";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { MapPicker } from "@/components/MapPicker";
+
 
 interface HostelOnboardingProps {
   onComplete: () => void;
@@ -22,6 +24,8 @@ interface HostelOnboardingProps {
     description: string;
     images: string[];
     amenities?: string[];
+    latitude?: number | null;
+    longitude?: number | null;
   };
 }
 
@@ -31,8 +35,11 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
     location: existingHostel?.location || "",
     description: existingHostel?.description || "",
     images: existingHostel?.images || [],
-    amenities: existingHostel?.amenities || []
+    amenities: existingHostel?.amenities || [],
+    latitude: existingHostel?.latitude ?? null as number | null,
+    longitude: existingHostel?.longitude ?? null as number | null,
   });
+
   
   const [step, setStep] = useState(1);
   
@@ -42,7 +49,6 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
   const createOrUpdateHostel = useMutation({
     mutationFn: async (data: typeof hostelData) => {
       if (existingHostel?.id) {
-        // Update existing hostel
         const { data: updatedData, error } = await supabase
           .from('hostels')
           .update({
@@ -50,7 +56,9 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
             location: data.location,
             description: data.description,
             images: data.images,
-            amenities: data.amenities
+            amenities: data.amenities,
+            latitude: data.latitude,
+            longitude: data.longitude,
           } as any)
           .eq('id', existingHostel.id)
           .select()
@@ -59,7 +67,6 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
         if (error) throw error;
         return updatedData;
       } else {
-        // Create new hostel
         const { data: newData, error } = await supabase
           .from('hostels')
           .insert([{
@@ -68,6 +75,8 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
             description: data.description,
             images: data.images,
             amenities: data.amenities,
+            latitude: data.latitude,
+            longitude: data.longitude,
             contact_name: 'Owner',
             contact_phone: 'Unknown',
             contact_email: 'owner@example.com',
@@ -79,6 +88,7 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
         if (error) throw error;
         return newData;
       }
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hostels'] });
@@ -224,6 +234,15 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
                     required 
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Pin Location on Map</Label>
+                  <MapPicker
+                    value={hostelData.latitude && hostelData.longitude ? { lat: hostelData.latitude, lng: hostelData.longitude } : null}
+                    onChange={(loc) => setHostelData({ ...hostelData, latitude: loc.lat, longitude: loc.lng })}
+                  />
+                </div>
+
 
                 <div className="flex justify-end pt-4">
                   <Button 

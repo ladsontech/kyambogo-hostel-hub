@@ -43,8 +43,12 @@ export const useCreateHostel = () => {
       images?: string[];
       amenities?: string[];
       featured?: boolean;
+      latitude?: number | null;
+      longitude?: number | null;
+      university?: string;
     }) => {
       console.log('Creating hostel with data:', hostelData);
+
 
       const insertData = {
         ...hostelData,
@@ -107,6 +111,9 @@ export const useUpdateHostel = () => {
       images?: string[];
       amenities?: string[];
       featured?: boolean;
+      latitude?: number | null;
+      longitude?: number | null;
+      university?: string;
     }) => {
       const updateData = {
         ...hostelData,

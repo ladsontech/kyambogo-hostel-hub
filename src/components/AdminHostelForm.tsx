@@ -12,6 +12,8 @@ import ImageUpload from "@/components/ImageUpload";
 import { AVAILABLE_AMENITIES } from "@/types/hostel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UNIVERSITIES } from "./SearchFilters";
+import { MapPicker } from "@/components/MapPicker";
+
 
 interface AdminHostelFormProps {
   onSuccess?: () => void;
@@ -26,8 +28,11 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
     contact_phone: "",
     university: "kyambogo",
     images: [] as string[],
-    amenities: [] as string[]
+    amenities: [] as string[],
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
+
   
   const createHostel = useCreateHostel();
 
@@ -58,8 +63,11 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
           contact_phone: "",
           university: "kyambogo",
           images: [],
-          amenities: []
+          amenities: [],
+          latitude: null,
+          longitude: null,
         });
+
         onSuccess?.();
       }
     });
@@ -175,6 +183,14 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
           </div>
 
           <div className="space-y-2">
+            <Label>Pin Location on Map</Label>
+            <MapPicker
+              value={hostelData.latitude && hostelData.longitude ? { lat: hostelData.latitude, lng: hostelData.longitude } : null}
+              onChange={(loc) => setHostelData({ ...hostelData, latitude: loc.lat, longitude: loc.lng })}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label>Hostel Images</Label>
             <ImageUpload
               images={hostelData.images}
@@ -182,6 +198,7 @@ const AdminHostelForm = ({ onSuccess, onCancel }: AdminHostelFormProps) => {
               maxImages={10}
             />
           </div>
+
 
           <div className="flex justify-end gap-4 pt-6">
             {onCancel && (
