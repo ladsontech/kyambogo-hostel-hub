@@ -235,6 +235,15 @@ const HostelOnboarding = ({ onComplete, existingHostel }: HostelOnboardingProps)
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Pin Location on Map</Label>
+                  <MapPicker
+                    value={hostelData.latitude && hostelData.longitude ? { lat: hostelData.latitude, lng: hostelData.longitude } : null}
+                    onChange={(loc) => setHostelData({ ...hostelData, latitude: loc.lat, longitude: loc.lng })}
+                  />
+                </div>
+
+
                 <div className="flex justify-end pt-4">
                   <Button 
                     type="button" 
